@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import {
   Anchor,
@@ -12,26 +12,47 @@ import {
   Stack,
   Text,
   TextInput,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { upperFirst, useToggle } from '@mantine/hooks';
+} from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { upperFirst, useToggle } from "@mantine/hooks"
+import { signUpAuth } from "@/lib/auth"
 
 function SignUpForm(props: PaperProps) {
-  const [type, toggle] = useToggle(['login', 'register']);
+  const [type, toggle] = useToggle(["login", "register"])
+
   const form = useForm({
     initialValues: {
-      email: '',
-      name: '',
-      password: '',
+      email: "",
+      name: "",
+      password: "",
       terms: true,
     },
 
     validate: {
-      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+      email: (val) => (/^\S+@\S+$/.test(val) ? null : "Invalid email"),
       password: (val) =>
-        val.length <= 6 ? 'Password should include at least 6 characters' : null,
+        val.length < 6 ? "Password should include at least 6 characters" : null,
     },
-  });
+  })
+
+  async function handleSubmit(values: typeof form.values) {
+    if (type === "login") {
+      console.log("login kommer her senere")
+      return
+    }
+
+    const { email, password } = values
+
+    const { data, error } = await signUpAuth(email, password)
+
+    if (error) {
+      form.setErrors({ email: error.message })
+      return
+    }
+
+    alert("Tjek din email for bekræftelse!")
+    form.reset()
+  }
 
   return (
     <Paper radius="md" p="lg" withBorder {...props}>
@@ -41,16 +62,13 @@ function SignUpForm(props: PaperProps) {
 
       <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
-      <form onSubmit={form.onSubmit(() => {})}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          {type === 'register' && (
+          {type === "register" && (
             <TextInput
               label="Name"
               placeholder="Your name"
-              value={form.values.name}
-              onChange={(event) =>
-                form.setFieldValue('name', event.currentTarget.value)
-              }
+              {...form.getInputProps("name")}
               radius="md"
             />
           )}
@@ -59,11 +77,7 @@ function SignUpForm(props: PaperProps) {
             required
             label="Email"
             placeholder="hello@mantine.dev"
-            value={form.values.email}
-            onChange={(event) =>
-              form.setFieldValue('email', event.currentTarget.value)
-            }
-            error={form.errors.email && 'Invalid email'}
+            {...form.getInputProps("email")}
             radius="md"
           />
 
@@ -71,24 +85,14 @@ function SignUpForm(props: PaperProps) {
             required
             label="Password"
             placeholder="Your password"
-            value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue('password', event.currentTarget.value)
-            }
-            error={
-              form.errors.password &&
-              'Password should include at least 6 characters'
-            }
+            {...form.getInputProps("password")}
             radius="md"
           />
 
-          {type === 'register' && (
+          {type === "register" && (
             <Checkbox
               label="I accept terms and conditions"
-              checked={form.values.terms}
-              onChange={(event) =>
-                form.setFieldValue('terms', event.currentTarget.checked)
-              }
+              {...form.getInputProps("terms", { type: "checkbox" })}
             />
           )}
         </Stack>
@@ -101,17 +105,18 @@ function SignUpForm(props: PaperProps) {
             onClick={() => toggle()}
             size="xs"
           >
-            {type === 'register'
-              ? 'Already have an account? Login'
+            {type === "register"
+              ? "Already have an account? Login"
               : "Don't have an account? Register"}
           </Anchor>
+
           <Button type="submit" radius="xl">
             {upperFirst(type)}
           </Button>
         </Group>
       </form>
     </Paper>
-  );
+  )
 }
 
 export default SignUpForm
