@@ -47,7 +47,7 @@ function LoginForm() {
   }
 
   return (
-    <Container size={420} my={40}>
+    <Container size={420} my={80}>
      
 
       <Text className="text-center text-gray-600 mt-2">
@@ -60,7 +60,7 @@ function LoginForm() {
         p={22}
         mt={30}
         radius="md"
-        className="p-6 mt-8 border rounded-md shadow-sm"
+        className="border rounded-md shadow-sm w-[380px] ml-3"
       >
         <form onSubmit={handleSubmit}>
           <TextInput
