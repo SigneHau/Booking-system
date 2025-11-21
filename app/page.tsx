@@ -1,7 +1,7 @@
 import LoginForm from "./components/LoginForm"
 import PrimaryButton from "./components/PrimaryButton"
 import PrimaryCard from "./components/PrimaryCard"
-import SignUpForm from "./components/SignupForm"
+
 
 export default function Home() {
   return (
@@ -14,9 +14,7 @@ export default function Home() {
         <LoginForm />
       </div>
 
-      <div className="mb-12">
-        <SignUpForm />
-      </div>
+      
     </div>
   )
 }

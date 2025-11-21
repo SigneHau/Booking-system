@@ -51,7 +51,7 @@ function LoginForm() {
       <Title className="text-center text-3xl font-bold">Welcome back!</Title>
 
       <Text className="text-center text-gray-600 mt-2">
-        Do not have an account yet? <Anchor href="/signup">Create account</Anchor>
+      
       </Text>
 
       <Paper
