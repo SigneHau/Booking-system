@@ -48,7 +48,7 @@ function LoginForm() {
 
   return (
     <Container size={420} my={40}>
-      <Title className="text-center text-3xl font-bold">Welcome back!</Title>
+     
 
       <Text className="text-center text-gray-600 mt-2">
       
@@ -64,7 +64,7 @@ function LoginForm() {
       >
         <form onSubmit={handleSubmit}>
           <TextInput
-            label="Email"
+            label="E-mail"
             placeholder="you@mantine.dev"
             required
             radius="md"
@@ -73,7 +73,7 @@ function LoginForm() {
           />
 
           <PasswordInput
-            label="Password"
+            label="Adgangskode"
             placeholder="Your password"
             required
             mt="md"
@@ -82,12 +82,7 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Group justify="space-between" mt="lg" className="mt-6">
-            <Checkbox label="Remember me" />
-            <Anchor component="button" size="sm">
-              Forgot password?
-            </Anchor>
-          </Group>
+          
 
           {message && (
             <Text color={error ? "red" : "green"} mt="sm">
@@ -102,7 +97,7 @@ function LoginForm() {
             className="mt-8 bg-blue-600 hover:bg-blue-700"
             type="submit"
           >
-            Sign in
+            Log in
           </Button>
         </form>
       </Paper>
