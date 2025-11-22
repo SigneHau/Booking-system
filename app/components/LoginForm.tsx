@@ -2,19 +2,16 @@
 
 import { useState } from "react";
 import {
-  Anchor,
   Button,
-  Checkbox,
   Container,
-  Group,
   Paper,
   PasswordInput,
   Text,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { loginAuth } from "@/lib/auth";
-import { useRouter } from "next/navigation"; // til redirect
+import { supabase } from "@/lib/supabaseClient"; // IMPORT DEN HER
+import { useRouter } from "next/navigation";
 
 function LoginForm() {
   const router = useRouter();
@@ -29,6 +26,7 @@ function LoginForm() {
     setMessage(null);
     setError(false);
 
+    // Login-auth fra auth.ts
     const { data, error } = await loginAuth(email, password);
 
     if (error) {
@@ -37,23 +35,43 @@ function LoginForm() {
       return;
     }
 
-    // Login succes
+    // Login succes besked
     setMessage(`Hej ${data.user?.email}, du er nu logget ind!`);
     setEmail("");
     setPassword("");
 
-    // Sender os videre til den side vi gerne vil have - eks nu sendes vi til student-dashboard siden, efter login
-    router.push("/student-dashboard");
+    const userId = data.user.id;
+
+    // Henter rolle fra profil-tabellen
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+
+    if (profileError || !profile?.role) {
+      setMessage("Kunne ikke finde din rolle i systemet.");
+      setError(true);
+      return;
+    }
+
+    const role = profile.role;
+    console.log("ROLE:", role);
+
+    // Redirect baseret på rollen
+    if (role === "student") {
+      router.push("/student-dashboard");
+      return;
+    }
+
+    if (role === "teacher") {
+      router.push("/teacher-dashboard");
+      return;
+    }
   }
 
   return (
     <Container size={420} my={80}>
-     
-
-      <Text className="text-center text-gray-600 mt-2">
-      
-      </Text>
-
       <Paper
         withBorder
         shadow="sm"
@@ -82,8 +100,6 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          
-
           {message && (
             <Text color={error ? "red" : "green"} mt="sm">
               {message}
@@ -105,4 +121,4 @@ function LoginForm() {
   );
 }
 
-export default LoginForm
+export default LoginForm;
