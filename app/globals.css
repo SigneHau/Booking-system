@@ -1,4 +1,9 @@
+/* 1. IMPORTER FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Linden+Hill:ital@0;1&display=swap&subset=latin-ext');
+
+/* 2. KORREKT TAILWIND v4 IMPORT */
 @import "tailwindcss";
+
 
 /* --- Base CSS-variabler --- */
 :root {
@@ -17,22 +22,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-
-/* --- dark mode --- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 
 /* --- Global body style --- */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

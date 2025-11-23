@@ -1,22 +1,12 @@
-import React from 'react'
-import PrimaryCard from "../components/PrimaryCard"
+'use client';
 
-const StudentDashboard = () => {
+import DashboardLayout from "../dashboard/layout";
+
+export default function StudentDashboard() {
   return (
-
-   <div className="flex min-h-screen">
-  {/* <!-- Sidebar --> */}
-  <aside className="w-74 bg-Primary p-4">
-    Sidebar indhold
-  </aside>
-
-  {/* <!-- Hovedindhold --> */}
-  <main className="flex-1 bg-white p-4">
-    Hovedindhold
-  </main>
-</div>
-  )
+    <DashboardLayout>
+      <h2 className="text-2xl font-heading mb-4">Velkommen til dit dashboard</h2>
+      <p>Her kan du se dine bookinger og booke lokaler.</p>
+    </DashboardLayout>
+  );
 }
-
-export default StudentDashboard
-

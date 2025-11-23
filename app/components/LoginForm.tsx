@@ -1,89 +1,74 @@
+// /app/components/LoginForm.tsx (eller hvor den ligger)
+
 "use client";
 
 import { useState } from "react";
-import {
-  Button,
-  Container,
-  Paper,
-  PasswordInput,
-  Text,
-  TextInput,
-} from "@mantine/core";
-import { loginAuth } from "@/lib/auth";
-import { supabase } from "@/lib/supabaseClient"; // IMPORT DEN HER
+import { Button, Container, Paper, PasswordInput, Text, TextInput } from "@mantine/core";
+// Husk at tjekke stien til supabaseClient.ts
+import { supabase } from "../../lib/supabaseClient"; 
 import { useRouter } from "next/navigation";
+import { loginAuth } from "@/lib/auth"; 
 
 function LoginForm() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setError(false);
+    setError(null);
+    setLoading(true);
+    
+    try {
+      // 1. Login via Supabase
+      const { data, error: loginError } = await loginAuth(email, password);
+      
+      if (loginError || !data?.user) {
+        setError("Forkert email eller kodeord");
+        return;
+      }
 
-    // Login-auth fra auth.ts
-    const { data, error } = await loginAuth(email, password);
+      const userId = data.user.id;
 
-    if (error) {
-      setMessage("Forkert email eller kodeord");
-      setError(true);
-      return;
+      // 2. Hent rolle fra profiles
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+
+      if (profileError || !profile?.role) {
+        setError("Kunne ikke finde din rolle i systemet.");
+        await supabase.auth.signOut(); // Log ud af brugeren, hvis profilen mangler
+        return;
+      }
+
+      // 3. Redirect baseret på rollen
+      if (profile.role === "student") {
+        router.push("/student-dashboard");
+      } else if (profile.role === "teacher") {
+        router.push("/teacher-dashboard");
+      } else {
+        router.push("/"); // fallback
+      }
+
+    } catch (e) {
+      console.error("Uventet fejl under login:", e);
+      setError("Der opstod en uventet fejl.");
+    } finally {
+      setLoading(false);
     }
-
-    // Login succes besked
-    setMessage(`Hej ${data.user?.email}, du er nu logget ind!`);
-    setEmail("");
-    setPassword("");
-
-    const userId = data.user.id;
-
-    // Henter rolle fra profil-tabellen
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
-
-    if (profileError || !profile?.role) {
-      setMessage("Kunne ikke finde din rolle i systemet.");
-      setError(true);
-      return;
-    }
-
-    const role = profile.role;
-    console.log("ROLE:", role);
-
-    // Redirect baseret på rollen
-    if (role === "student") {
-      router.push("/student-dashboard");
-      return;
-    }
-
-    if (role === "teacher") {
-      router.push("/teacher-dashboard");
-      return;
-    }
-  }
+  };
 
   return (
     <Container size={420} my={80}>
-      <Paper
-        withBorder
-        shadow="sm"
-        p={22}
-        mt={30}
-        radius="md"
-        className="border rounded-md shadow-sm w-[380px] ml-3"
-      >
+      <Paper withBorder shadow="sm" p={22} mt={30} radius="md" className="border rounded-md shadow-sm w-[380px]">
         <form onSubmit={handleSubmit}>
           <TextInput
             label="E-mail"
-            placeholder="you@mantine.dev"
+            placeholder="you@domain.com"
             required
             radius="md"
             value={email}
@@ -100,18 +85,16 @@ function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {message && (
-            <Text color={error ? "red" : "green"} mt="sm">
-              {message}
-            </Text>
-          )}
+          {error && <Text color="red" mt="sm">{error}</Text>}
 
-          <Button
-            fullWidth
-            mt="xl"
-            radius="md"
-            className="mt-8 bg-blue-600 hover:bg-blue-700"
-            type="submit"
+          <Button 
+            fullWidth 
+            mt="xl" 
+            radius="md" 
+            type="submit" 
+            className="bg-blue-600 hover:bg-blue-700"
+            disabled={loading}
+            loading={loading}
           >
             Log in
           </Button>
