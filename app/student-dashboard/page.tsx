@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
 import DashboardLayout from "../dashboard/layout";
 
 export default function StudentDashboard() {
   return (
     <DashboardLayout>
-      <h2 className="text-2xl font-heading mb-4">Velkommen til dit dashboard</h2>
-      <p>Her kan du se dine bookinger og booke lokaler.</p>
+       <div className='flex mt-26 items-center justify-center font-light text-5xl'>
+      <h1>Book lokaler</h1>
+    </div>
     </DashboardLayout>
   );
 }

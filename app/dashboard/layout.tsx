@@ -20,7 +20,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const fetchUser = async () => {
       setLoading(true);
 
-      // 1. Hent bruger fra Supabase
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         router.push("/login");
@@ -28,7 +27,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return;
       }
 
-      // 2. Hent profil
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, role")
@@ -36,22 +34,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .single();
 
       if (profileError || !profile) {
-        console.error("Profile not found", profileError);
         setUserData({
           name: user.email ?? "Ukendt bruger",
           role: "unknown",
           email: user.email ?? "",
         });
       } else {
-        // Brug små bogstaver til path for at undgå browser-storbogstav-problem
-        const role = profile.role.toLowerCase();
         setUserData({
           name: profile.full_name,
-          role: role,
+          role: profile.role.toLowerCase(), // små bogstaver til URL
           email: user.email ?? "",
         });
-
-        router.push(`/${role}-dashboard`);
       }
 
       setLoading(false);
@@ -70,12 +63,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-// Forklaring for dig som begynder:
-
-// Vi bruger kun én useEffect til at hente bruger + profil.
-
-// Vi laver role.toLowerCase(), så URL altid bliver med små bogstaver.
-
-// Loader vises, mens vi henter data.
-
-// Hvis bruger ikke er logget ind, bliver man sendt til login.

@@ -1,7 +1,7 @@
 "use client";
+
 import Image from "next/image";
 import { FaHome, FaCalendarAlt, FaExclamationCircle } from "react-icons/fa";
-import PrimaryButton from "./PrimaryButton";
 import { Open_Sans } from "next/font/google";
 
 const openSans = Open_Sans({ subsets: ['latin'], weight: ['400','600'] });
@@ -11,7 +11,6 @@ type SidebarProps = {
     name: string;
     role: string;
     email: string;
-    avatarUrl?: string;
   };
 };
 
@@ -25,29 +24,40 @@ export default function Sidebar({ user }: SidebarProps) {
 
       <nav className="flex-1 w-full">
         <ul className="space-y-3">
+          {/* Book lokaler */}
           <li className={`flex items-center gap-3 p-2 rounded bg-primary hover:bg-hover text-secondary text-base font-normal ${openSans.className}`}>
             <FaHome />
-            <span className="text-base font-normal">Book lokaler</span>
+            <span className="text-base font-normal">
+              { /* Link til booking baseret på rolle */ }
+              <a href={`/${user.role}-dashboard`}>Book lokaler</a>
+            </span>
           </li>
+
+          {/* Mine bookinger */}
           <li className={`flex items-center gap-3 p-2 rounded bg-primary hover:bg-hover text-secondary text-base font-normal ${openSans.className}`}>
             <FaCalendarAlt />
-            <span className="text-base font-normal">Mine bookinger</span>
+            <span className="text-base font-normal">
+              <a href={`/${user.role}-booking`}>Mine bookinger</a>
+            </span>
           </li>
+
+          {/* Hjælp */}
           <li className={`flex items-center gap-3 p-2 rounded bg-primary hover:bg-hover text-secondary text-base font-normal ${openSans.className}`}>
             <FaExclamationCircle />
-            <span className="text-base font-normal">Hjælp</span>
+            <span className="text-base font-normal">
+              <a href="/help">Hjælp</a>
+            </span>
           </li>
         </ul>
       </nav>
 
       <div className="mt-6 flex flex-col items-center w-full">
-        <div className="flex items-center gap-3 w-full bg-secondary text-primary p-3 rounded">
-          <Image src="/avatar.png" alt="Avatar" width={40} height={40} />
+        <div className="flex items-center gap-16 w-full bg-secondary text-primary p-3 rounded">
+          <Image src="/avatar.png" alt="Avatar" width={60} height={60} />
           <div className="flex flex-col">
             <p className="font-heading text-base font-bold">{user.name}</p>
             <p className={`text-sm opacity-90 ${openSans.className}`}>{user.role}</p>
-            <p className={`text-xs opacity-70 mb-6 ${openSans.className}`}>{user.email}</p>
-            <PrimaryButton text="Log ud" action="logout" />
+            <p className={`text-sm opacity-70 mb-6 ${openSans.className}`}>{user.email}</p>
           </div>
         </div>
       </div>
