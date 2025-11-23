@@ -16,7 +16,7 @@ const PrimaryButton = ({ text, action, redirectTo }: PrimaryButtonProps) => {
   const handleClick = async () => {
     if (action === "logout") {
       await supabase.auth.signOut();
-      router.push(redirectTo || "/login");
+      router.push(redirectTo || "/");
     } else if (action === "login") {
       router.push(redirectTo || "/student-dashboard");
     }

@@ -42,9 +42,7 @@ export default function Sidebar({ user }: SidebarProps) {
 
       <div className="mt-6 flex flex-col items-center w-full">
         <div className="flex items-center gap-3 w-full bg-secondary text-primary p-3 rounded">
-          <div className="w-16 h-16 rounded-full bg-gray flex items-center justify-center text-black text-xl">
-            {user.name[0]}
-          </div>
+          <Image src="/avatar.png" alt="Avatar" width={40} height={40} />
           <div className="flex flex-col">
             <p className="font-heading text-base font-bold">{user.name}</p>
             <p className={`text-sm opacity-90 ${openSans.className}`}>{user.role}</p>

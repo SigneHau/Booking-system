@@ -1,11 +1,12 @@
-import React from 'react'
+'use client';
 
-const TeacherDashboard = () => {
+import DashboardLayout from "../dashboard/layout";
+
+export default function TeacherDashboard() {
   return (
-    <div>
-      <h1>Velkommen til Teacher Dashboard</h1>
-    </div>
-  )
+    <DashboardLayout>
+      <h2 className="text-2xl font-heading mb-4">Velkommen til dit dashboard</h2>
+      <p>Her kan du se dine bookinger og booke lokaler.</p>
+    </DashboardLayout>
+  );
 }
-
-export default TeacherDashboard
