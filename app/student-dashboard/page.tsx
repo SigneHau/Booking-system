@@ -6,7 +6,7 @@ import FilterCard from "../components/FilterCard"
 export default function StudentDashboard() {
   return (
     <DashboardLayout>
-      <div className="flex mt-26 items-center justify-center font-light text-5xl">
+      <div className="flex font-semibold mt-4 mb-24 text-3xl">
         <h1>Book lokaler</h1>
       </div>
       <FilterCard />

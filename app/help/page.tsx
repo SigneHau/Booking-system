@@ -4,7 +4,7 @@ import DashboardLayout from "../dashboard/layout"
 const HelpPage = () => {
   return (
     <DashboardLayout>
-      <div className="mb-8 flex mt-26 font-light text-5xl">
+      <div className="flex font-semibold mt-4 mb-16 text-3xl">
         <h1>Sådan Booker du</h1>
       </div>
 
