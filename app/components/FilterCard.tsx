@@ -8,7 +8,7 @@ import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
 import { supabase } from "@/lib/supabaseClient"
 
-// Definerer hvordan vores filter-objekt ser ud, så TypeScript kender strukturen
+// Beskriver strukturen af vores filter-objekt
 type Filters = {
   floor: number | null
   date: Date | null
@@ -17,89 +17,88 @@ type Filters = {
   role: "student" | "teacher"
 }
 
-// FilterCard modtager funktionen setFilters fra parent-componentet.
-// setFilters bruges til at sende de valgte filterværdier OP til parent.
+// FilterCard modtager setFilters fra parent → sender brugerens valg op
 function FilterCard({
   setFilters,
 }: {
   setFilters: (filters: Filters) => void
 }) {
-  // Liste over etager hentet fra databasen (fx [1,2,3])
+  // Liste over alle etager hentet fra databasen
   const [floors, setFloors] = useState<number[]>([])
 
-  // Brugerens rolle – bruges til at begrænse dato-valg
+  // Brugerens rolle (student/teacher) – bestemmer hvilke etager og datoer man må vælge
   const [userRole, setUserRole] = useState<"student" | "teacher">("student")
 
-  // De 4 filtre som brugeren vælger
+  // Lokalt state for brugerens filtervalg
   const [floor, setFloor] = useState<number | null>(null)
   const [date, setDate] = useState<Date | null>(null)
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 
   // -----------------------------------------------------------
-  // 1️⃣ HENT ETAGER FRA SUPABASE (kører kun én gang)
+  // 1️⃣ HENT ETAGER FRA SUPABASE
   // -----------------------------------------------------------
   useEffect(() => {
     async function loadFloors() {
-      // Hent kolonnen "floor" fra meetingrooms
       const { data, error } = await supabase
         .from("meetingrooms")
         .select("floor")
         .order("floor", { ascending: true })
 
-      // Hvis fejl eller ingen data → stop (beskytter mod null)
       if (error || !data) return
 
-      // Fjerner dubletter (så vi kun viser unikke etager)
+      // Fjerner dubletter (så vi får fx [1,2,3,4])
       const uniqueFloors = [...new Set(data.map((f) => f.floor))]
 
-      // Gemmer etager i state
-      setFloors(uniqueFloors)
+      setFloors(uniqueFloors) // lærere skal bruge disse
     }
 
     loadFloors()
-  }, []) // [] betyder: kør kun ved første render
+  }, [])
 
   // -----------------------------------------------------------
-  // 2️⃣ HENT BRUGERENS ROLLE (student/teacher)
+  // 2️⃣ HENT BRUGERENS ROLLE (student eller teacher)
   // -----------------------------------------------------------
   useEffect(() => {
     async function getRole() {
-      // Hent auth-bruger
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      // Hvis ingen bruger er logget ind → stop
+      const { data: auth } = await supabase.auth.getUser()
+      const user = auth?.user
       if (!user) return
 
-      // Hent rollen fra profiles-tabellen
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single()
 
-      // Beskyt mod null hvis profilen ikke findes
       if (error || !profile) return
 
-      setUserRole(profile.role) // opdater brugerrollen
+      setUserRole(profile.role)
     }
 
     getRole()
-  }, []) // kører kun én gang
+  }, [])
 
   // -----------------------------------------------------------
-  // 3️⃣ SEND FILTRE OP TIL PARENT-COMPONENTET
+  // 3️⃣ STUDENT-BEHAVIOUR: Studerende må KUN vælge etage 3
   // -----------------------------------------------------------
   useEffect(() => {
-    // Hver gang et filter ændrer sig → send nyt filter-objekt op
-    setFilters({ floor, date, from, to, role: userRole })
-  }, [floor, date, from, to, userRole])
-  // useEffect lytter på alle 5 værdier
+    if (userRole === "student") {
+      setFloors([3]) // Studerende må kun se denne etage
+      setFloor(3) // Vælg automatisk etage 3
+    }
+    // Lærere → behold alle etager (fra loadFloors)
+  }, [userRole])
 
   // -----------------------------------------------------------
-  // 4️⃣ UI — VIS FILTER-BOKSEN
+  // 4️⃣ SEND FILTER-STATE OP TIL PARENT COMPONENT
+  // -----------------------------------------------------------
+  useEffect(() => {
+    setFilters({ floor, date, from, to, role: userRole })
+  }, [floor, date, from, to, userRole])
+
+  // -----------------------------------------------------------
+  // 5️⃣ UI – VIS HELE FILTER-BOKSEN
   // -----------------------------------------------------------
   return (
     <Paper shadow="sm" radius="lg" withBorder p="xl">
@@ -111,26 +110,28 @@ function FilterCard({
           <Text size="sm" fw={500} mb={4}>
             Etage
           </Text>
+
           <FloorSelector
-            floors={floors} // listen af etager
-            value={floor} // den valgte etage
-            onChange={setFloor} // opdater state når brugeren vælger
+            floors={floors} // hvilke etager vises
+            value={floor} // valgt etage
+            onChange={setFloor} // opdater floor-state
+            disabled={userRole === "student"} // studerende må ikke ændre
           />
         </Grid.Col>
 
-        {/* Dato-vælger */}
+        {/* Dato */}
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Text size="sm" fw={500} mb={4}>
             Dato
           </Text>
+
           <DateSelector
-            value={date} // valgt dato
-            onChange={setDate} // opdater datoen
+            value={date}
+            onChange={setDate}
             maxDate={
-              // maks hvor langt frem man må vælge
               userRole === "student"
-                ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // studerende: 14 dage
-                : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // lærere: 6 måneder
+                ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 dage frem
+                : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 6 måneder frem
             }
           />
         </Grid.Col>

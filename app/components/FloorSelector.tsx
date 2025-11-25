@@ -1,21 +1,48 @@
 import { Select } from "@mantine/core"
 
-// Modtager 3 ting fra FilterCard:
-// floors = en liste af etager fra databasen (fx [1,2,3])
-// value = den etage brugeren har valgt
-// onChange = funktionen som opdaterer valgt etage
-function FloorSelector({ floors, value, onChange }) {
+// FloorSelector viser valg af etage.
+// Den modtager:
+//  - floors: listen over etager der må vælges
+//  - value: den nuværende valgte etage
+//  - onChange: funktion der opdaterer valgt etage
+//  - disabled: true/false → om feltet må ændres
+function FloorSelector({
+  floors,
+  value,
+  onChange,
+  disabled = false,
+}: {
+  floors: number[]
+  value: number | null
+  onChange: (value: number) => void
+  disabled?: boolean
+}) {
   return (
     <Select
-      placeholder="Vælg etage" // Tekst der vises før noget er valgt
-      value={value} // Den etage der er valgt lige nu
-      onChange={(v) => onChange(Number(v))}
-      // Når brugeren vælger en etage → send den tilbage til FilterCard
-
+      className="text-gray-400"
+      placeholder="Vælg etage"
+      label="Vælg den ønskede etage"
+      disabled={disabled} // Studerende må ikke ændre etage
+      // 👇 Fjern disabled-grå styling, så feltet stadig ligner de andre
+      styles={{
+        input: {
+          backgroundColor: "white",
+          color: "black",
+          opacity: 1,
+          cursor: disabled ? "not-allowed" : "pointer",
+        },
+      }}
+      // Mantine Select tager strings, så vi konverterer tal → tekst
       data={floors.map((f) => ({
-        label: `Sal ${f}`, // Teksten brugeren ser i dropdown
-        value: String(f), // Værdien der sendes videre (skal være string)
+        value: f.toString(),
+        label: `Etage ${f}`,
       }))}
+      // value skal også være en string
+      value={value !== null ? value.toString() : null}
+      // onChange returnerer en string → konverter tilbage til tal
+      onChange={(val) => {
+        if (val) onChange(Number(val))
+      }}
     />
   )
 }
