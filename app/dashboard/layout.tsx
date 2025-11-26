@@ -1,33 +1,40 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Sidebar from "@/app/components/Sidebar";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import Sidebar from "@/app/components/Sidebar"
+import { supabase } from "@/lib/supabaseClient"
 
 type UserData = {
-  name: string;
-  role: string;
-  email: string;
-};
+  name: string
+  role: string
+  email: string
+}
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
-      setLoading(true);
+      setLoading(true)
 
       // ❗ Henter den nuværende bruger fra Supabase (session / auth)
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
 
       // ❗ Hvis ingen bruger → send til login (beskyt dashboard)
       if (userError || !user) {
-        router.push("/");
-        setLoading(false);
-        return;
+        router.push("/")
+        setLoading(false)
+        return
       }
 
       // ❗ Henter ekstra info om brugeren fra "profiles" tabellen
@@ -35,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .from("profiles")
         .select("full_name, role")
         .eq("user_id", user.id)
-        .single();
+        .single()
 
       // ❗ Hvis profil mangler → brug fallback data
       if (profileError || !profile) {
@@ -43,24 +50,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           name: user.email ?? "Ukendt bruger",
           role: "unknown",
           email: user.email ?? "",
-        });
+        })
       } else {
         setUserData({
           name: profile.full_name,
           role: profile.role.toLowerCase(), // små bogstaver til URL
           email: user.email ?? "",
-        });
+        })
       }
 
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
     // ❗ useEffect kører funktionen én gang når layoutet loader
-    fetchUser();
-  }, [router]); // ❗ Kører igen hvis router skifter (sker sjældent)
+    fetchUser()
+  }, [router]) // ❗ Kører igen hvis router skifter (sker sjældent)
 
-  if (loading) return <div className="p-6 text-center mt-20">Loader...</div>;
-  if (!userData) return <div className="p-6 text-red-600">Du er ikke logget ind.</div>;
+  if (loading) return <div className="p-6 text-center mt-20">Loader...</div>
+  if (!userData)
+    return <div className="p-6 text-red-600">Du er ikke logget ind.</div>
 
   return (
     <div className="flex min-h-screen">
@@ -69,7 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ❗ children = indholdet fra dashboard-undersiderne */}
       <main className="flex-1 p-6">{children}</main>
     </div>
-  );
+  )
 }
 
 /*
