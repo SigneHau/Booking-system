@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Table } from "@mantine/core"
+import { Table } from "@mantine/core"
 import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
@@ -38,8 +38,6 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
           borderRadius: "8px",
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
           backgroundColor: "white",
-
-          // --- Lidt højere op end præcis midten (som i dit screenshot) ---
           transform: "translate(-50%, -55%)",
         },
       },
@@ -64,25 +62,25 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
           />
 
           <div className="flex gap-3 pt-4 justify-center">
-            <Button
-              color="blue"
+            <button
+              className="bg-blue-800 text-white px-4 py-2 rounded-md"
               onClick={() => {
                 console.log("Booking bekræftet")
                 modals.closeAll()
               }}
             >
               Book
-            </Button>
+            </button>
 
-            <Button
-              color="red"
+            <button
+              className="bg-red-600 text-white px-4 py-2 rounded-md"
               onClick={() => {
                 console.log("Booking annulleret")
                 modals.closeAll()
               }}
             >
               Annuller
-            </Button>
+            </button>
           </div>
         </div>
       ),
@@ -116,7 +114,7 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
           </span>
         ) : (
           // booked = false → LEDIG
-          <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+          <span className="bg-green-200 text-green-700 px-2 py-1 rounded">
             Ledigt
           </span>
         )}
@@ -128,7 +126,7 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
           // Disable knappen hvis lokalet er optaget
           disabled={room.booked}
           className={`px-3 py-1 rounded text-white ${
-            room.booked ? "bg-gray-400" : "bg-blue-600"
+            room.booked ? "bg-gray-400" : "bg-blue-800"
           }`}
           onClick={() => handleBooking(room)} // Kør modal-funktionen
         >
