@@ -64,21 +64,18 @@ export default function LoginForm() {
   };
 
   return (
-    <Container size={420} my={80}>
+    <Container size={420} my={90}>
       <Paper
-        withBorder
-        shadow="sm"
-        p={22}
-        mt={30}
-        radius="md"
-        className="border rounded-md shadow-sm w-[380px]"
+        p={0}
+        radius="sm"
+        className=" w-[300px]"
       >
         <form onSubmit={handleSubmit}>
           <TextInput
             label="E-mail"
-            placeholder="you@domain.com"
+            placeholder="Skriv din adgangskode"
             required
-            radius="md"
+            radius="sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -87,20 +84,24 @@ export default function LoginForm() {
             label="Adgangskode"
             placeholder="Din adgangskode"
             required
-            mt="md"
-            radius="md"
+            mt="xl"
+            radius="sm"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
           {error && <Text color="red" mt="sm">{error}</Text>}
 
-          <Button
-            fullWidth
-            mt="xl"
-            radius="md"
+          <Button className="mt-10 ml-30  "
+            radius="sm"
             type="submit"
-            color="black"
+            styles={{
+              root: {
+                color: "black",          
+                border: "1px solid gray", 
+                backgroundColor: "white", 
+              },
+            }}
             disabled={loading}
             loading={loading}
           >
