@@ -102,7 +102,7 @@ export default function HomePage() {
             <TextInput
               label="Kodeord"
               placeholder="Indtast dit kodeord"
-              value={email}
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
