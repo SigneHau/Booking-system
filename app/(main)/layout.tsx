@@ -1,9 +1,9 @@
-import AuthLayout from "./AuthLayout"
+import AuthWrapper from "../components/AuthWrapper"
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <AuthLayout>{children}</AuthLayout>
+  return <AuthWrapper>{children}</AuthWrapper>
 }

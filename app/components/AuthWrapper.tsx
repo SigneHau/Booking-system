@@ -5,8 +5,9 @@ import { useRouter, usePathname } from "next/navigation"
 import Sidebar from "@/app/components/Sidebar"
 import { supabase } from "@/lib/supabaseClient"
 import { UserContext, UserData } from "@/app/contexts/UserContext"
+import LoadingSpinner from "./LoadingSpinner"
 
-export default function AuthLayout({
+export default function AuthWrapper({
   children,
 }: {
   children: React.ReactNode
@@ -74,7 +75,11 @@ export default function AuthLayout({
   }, [router, pathname])
 
   if (loading)
-    return <p className="p-6 mt-10 text-center text-xl">Indlæser...</p>
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <LoadingSpinner />
+      </div>
+    )
 
   // ✅ Wrapper med UserContext
   return (
