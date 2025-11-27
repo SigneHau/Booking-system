@@ -1,5 +1,9 @@
-import ClientLayoutWrapper from "./ClientLayoutWrapper";
+import AuthLayout from "./AuthLayout"
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
-  return <ClientLayoutWrapper>{children}</ClientLayoutWrapper>;
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <AuthLayout>{children}</AuthLayout>
 }
