@@ -5,6 +5,7 @@ import "@mantine/dates/styles.css";
 
 import { MantineProvider } from "@mantine/core";
 import { Open_Sans } from "next/font/google";
+import Providers from "./Providers";
 
 const openSans = Open_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -12,7 +13,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="da" className={openSans.className}>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        
+         <Providers>{children}</Providers>
       </body>
     </html>
   );

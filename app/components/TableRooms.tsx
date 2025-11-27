@@ -1,4 +1,9 @@
-import { Table } from "@mantine/core"
+"use client"
+
+import { Button, Table } from "@mantine/core"
+import { modals } from "@mantine/modals"
+import { IconAlertCircle } from "@tabler/icons-react"
+import BookingContentModal from "./BookingContentModal"
 
 // Definerer hvordan ét lokale (Room) skal se ud i TypeScript
 type Room = {
@@ -16,37 +21,90 @@ type Room = {
 function TableRooms({ rooms }: { rooms: Room[] }) {
   /**
    * -------------------------------------------------------------
-   * TableRooms modtager "rooms" som en prop.
-   *
-   * rooms indeholder:
-   *  - roomid
-   *  - local (mødelokale / undervisning / open learning)
-   *  - roomsize
-   *  - availability (fra meetingrooms)
-   *  - booked (true/false – beregnet i student-dashboard/page.tsx)
-   *
-   * Denne komponent skal IKKE hente data.
-   * Den skal KUN vise en tabel baseret på den færdige rooms-liste.
+   * Funktion der åbner booking-modal'en.
+   * Den modtager det lokale som brugeren har klikket på.
    * -------------------------------------------------------------
    */
+  const handleBooking = (room: Room) => {
+    // Åbner en modal med detaljer om det valgte lokale
+    modals.open({
+      centered: true,
+      size: "xs",
 
-  // -------------------------------------------------------------
-  // Vi laver en række (row) i tabellen for hvert lokale i "rooms".
-  // rooms.map(...) betyder: "for hvert lokale → lav en tabelrække".
-  // -------------------------------------------------------------
+      styles: {
+        content: {
+          width: "280px",
+          padding: "14px 16px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+          backgroundColor: "white",
+
+          // --- Lidt højere op end præcis midten (som i dit screenshot) ---
+          transform: "translate(-50%, -55%)",
+        },
+      },
+
+      title: (
+        <div className="flex items-center gap-2">
+          <IconAlertCircle size={20} className="text-gray-700" />
+          <span className="font-semibold">Overblik over booking</span>
+        </div>
+      ),
+
+      // Indsætter BookingConfirmModal component som modal-indhold
+      // Indholdet der vises inde i modal-vinduet
+      children: (
+        <div className="space-y-4">
+          <BookingContentModal
+            floor={room.floor.toString()}
+            room={room.roomid}
+            date="Vælg dato"
+            timeFrom="08:00"
+            timeTo="16:00"
+          />
+
+          <div className="flex gap-3 pt-4 justify-center">
+            <Button
+              color="blue"
+              onClick={() => {
+                console.log("Booking bekræftet")
+                modals.closeAll()
+              }}
+            >
+              Book
+            </Button>
+
+            <Button
+              color="red"
+              onClick={() => {
+                console.log("Booking annulleret")
+                modals.closeAll()
+              }}
+            >
+              Annuller
+            </Button>
+          </div>
+        </div>
+      ),
+    })
+  }
+
+  /**
+   * -------------------------------------------------------------
+   * Vi laver en tabelrække for hvert lokale i "rooms".
+   * rooms.map(): "for hvert lokale → lav en tabelrække".
+   * -------------------------------------------------------------
+   */
   const rows = rooms.map((room) => (
     // <Table.Tr> = Table Row (tabelrække)
     <Table.Tr key={room.id}>
-      {/* Lokale-nummer + type (fx "3.3 – Mødelokale") 
-      <Table.Td> = Table Data (celle i rækken) */}
+      {/* Table.Td = celle i rækken */}
       <Table.Td>
         {room.roomid} – {room.local}
       </Table.Td>
 
-      {/* Kapacitet (antal personer lokalet kan rumme) */}
       <Table.Td>{room.roomsize} personer</Table.Td>
 
-      {/* Lokalet's standard åbningstid */}
       <Table.Td>{room.availability}</Table.Td>
 
       {/* STATUS (Ledig / Optaget) */}
@@ -72,7 +130,7 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
           className={`px-3 py-1 rounded text-white ${
             room.booked ? "bg-gray-400" : "bg-blue-600"
           }`}
-          onClick={() => handleBooking(room)} // <-- funktion laves senere
+          onClick={() => handleBooking(room)} // Kør modal-funktionen
         >
           Book
         </button>
@@ -80,11 +138,13 @@ function TableRooms({ rooms }: { rooms: Room[] }) {
     </Table.Tr>
   ))
 
-  // -------------------------------------------------------------
-  // Returner den fulde tabelstruktur:
-  //  - Head: Kolonneoverskrifter
-  //  - Body: Alle rooms.rækker
-  // -------------------------------------------------------------
+  /**
+   * -------------------------------------------------------------
+   * Returner den fulde tabelstruktur:
+   *  - Head: Kolonneoverskrifter
+   *  - Body: Alle rooms.rækker
+   * -------------------------------------------------------------
+   */
   return (
     <Table>
       <Table.Thead>
