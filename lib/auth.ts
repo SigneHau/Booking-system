@@ -16,21 +16,6 @@ export async function loginAuth(email: string, password: string) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // // SIGNUP:
 // // Opretter en ny bruger i Supabase Auth.
 // // Brugeren får en bekræftelsesmail og bliver først aktiv efter bekræftelse.

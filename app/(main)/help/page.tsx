@@ -1,11 +1,16 @@
-import React from "react"
-import DashboardLayout from "../dashboard/layout"
+"use client";
+import React from "react";
+import RoleBadge from "@/app/components/RoleBadge";
+import { useUser } from "@/app/contexts/UserContext"; // Hook til at hente bruger
 
 const HelpPage = () => {
+  const user = useUser(); // Henter den indloggede bruger fra context
+
   return (
-    <DashboardLayout>
-      <div className="flex font-semibold mt-4 mb-16 text-3xl">
-        <h1>Sådan Booker du</h1>
+    <div className="p-6">
+      <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
+        <h1>Sådan booker du</h1>
+        <RoleBadge role={user?.role ?? "unknown"} />
       </div>
 
       <ol className="list-decimal pl-6 space-y-4 text-lg leading-7">
@@ -84,8 +89,8 @@ const HelpPage = () => {
           </p>
         </li>
       </ol>
-    </DashboardLayout>
-  )
-}
+    </div>
+  );
+};
 
-export default HelpPage
+export default HelpPage;
