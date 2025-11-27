@@ -1,68 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabaseClient"
 import Image from "next/image"
-import { TextInput } from "@mantine/core"
+import LoginForm from "@/app/components/LoginForm"  // ⬅️ VIGTIGT: vi bruger nu dit komponent
 
 export default function HomePage() {
-  const [email, setEmail] = useState("") // Gemmer input fra email-felt
-  const [password, setPassword] = useState("") // Gemmer input fra password-felt
-  const [error, setError] = useState("") // Gemmer fejlmeddelelser
-  const router = useRouter()
-
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault()
-    setError("") // Reset evt. tidligere fejl
-
-    try {
-      // 1️⃣ Log ind via Supabase Auth
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-
-      if (loginError) {
-        setError(loginError.message) // Hvis login fejler, vis fejl
-        return
-      }
-
-      const user = data?.user
-      if (!user) {
-        setError("Email eller kodeord er forkert") // Ingen bruger fundet
-        return
-      }
-
-      // 2️⃣ Hent brugerprofil fra "profiles" tabellen
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role, full_name")
-        .eq("user_id", user.id) // Brug user_id fra auth som foreign key
-        .single()
-
-      if (profileError || !profile) {
-        setError("Brugerprofil ikke fundet") // Profil findes ikke
-        return
-      }
-
-      // 3️⃣ Redirect baseret på rolle
-      if (profile.role.toLowerCase() === "teacher") {
-        router.replace("/dashboard/teacher") // Lærer-dashboard
-      } else if (profile.role.toLowerCase() === "student") {
-        router.replace("/dashboard/student") // Studerende-dashboard
-      } else {
-        setError("Ugyldig rolle") // Rolle findes ikke i systemet
-      }
-    } catch (err) {
-      console.error(err)
-      setError("Noget gik galt. Prøv igen.") // Generel fejl
-    }
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-white font-sans p-6">
+
       {/* Venstre billede */}
       <div className="mr-[200px]">
         <Image
@@ -70,13 +14,15 @@ export default function HomePage() {
           alt="Login billede"
           width={400}
           height={300}
-          loading="eager" // For at forbedre LCP
+          loading="eager"
         />
       </div>
 
-      {/* Højre kolonne med logo og login */}
+      {/* Højre kolonne */}
       <div className="flex flex-col">
-        <div className="">
+
+        {/* Logo */}
+        <div>
           <Image
             src="/logo-ek-navn.png"
             alt="Logo"
@@ -86,35 +32,11 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Login form */}
-        <div className="mt-16">
-          <form
-            onSubmit={handleLogin}
-            className="flex flex-col gap-4 mt-4 w-full max-w-sm"
-          >
-            <TextInput
-              label="Din email"
-              placeholder="Indtast din skole email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <TextInput
-              label="Kodeord"
-              placeholder="Indtast dit kodeord"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {error && <p className="text-red-500">{error}</p>}
-            <button
-              type="submit"
-              className="bg-blue-900 text-white p-2 rounded hover:bg-blue-600 transition mt-[77px]"
-            >
-              Log ind
-            </button>
-          </form>
+        {/* Login form komponent */}
+        <div className="mt-12">
+          <LoginForm /> {/*  Hele din Mantine login form */}
         </div>
+
       </div>
     </div>
   )

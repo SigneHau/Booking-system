@@ -18,10 +18,8 @@ export default function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    console.log("HandleSubmit kaldt!", { email, password });
 
     try {
-      // 1. Login via Supabase
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -34,14 +32,11 @@ export default function LoginForm() {
 
       const userId = data.user.id;
 
-      // 2. Hent profil fra profiles
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, role")
         .eq("user_id", userId)
         .single();
-
-      console.log("Profile fetch:", profile, profileError);
 
       if (profileError || !profile?.role) {
         setError("Kunne ikke finde din rolle i systemet.");
@@ -49,16 +44,15 @@ export default function LoginForm() {
         return;
       }
 
-      // 3. Redirect baseret på rolle (case-insensitiv)
-      const role = profile.role.toLowerCase(); // "student" eller "teacher"
-      console.log("Redirect til:", role);
+      const role = profile.role.toLowerCase();
 
+      // 🔥 Rettet til dine rigtige dashboards
       if (role === "student") {
-        router.push("/student-dashboard");
+        router.push("/dashboard/student");
       } else if (role === "teacher") {
-        router.push("/teacher-dashboard");
+        router.push("/dashboard/teacher");
       } else {
-        router.push("/"); // fallback
+        router.push("/");
       }
 
     } catch (err) {

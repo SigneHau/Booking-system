@@ -3,7 +3,7 @@ import "./globals.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
-import { MantineProvider } from "@mantine/core";
+
 import { Open_Sans } from "next/font/google";
 import Providers from "./Providers";
 
