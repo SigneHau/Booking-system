@@ -1,29 +1,43 @@
 import { Paper } from "@mantine/core"
 import TableRooms from "./TableRooms"
 
-function AvailableRoomsCard({ rooms }) {
-  /**
-   * -------------------------------------------------------------
-   * AvailableRoomsCard modtager "rooms" som en prop.
-   *
-   * rooms = den filtrerede liste af lokaler,
-   * som student-dashboard/page.tsx har hentet og beregnet status på.
-   *
-   * Denne komponent skal IKKE hente data selv.
-   * Den skal KUN vise data på en pæn måde.
-   *
-   * Derfor sender vi "rooms" videre ned til TableRooms,
-   * som står for at præsentere data i en tabel.
-   * -------------------------------------------------------------
-   */
+// Filtrene brugeren har valgt (etage, dato, tidsrum, rolle)
+type Filters = {
+  floor: number | null
+  date: Date | null
+  from: string | null
+  to: string | null
+  role: "student" | "teacher"
+}
 
+// Props der sendes fra StudentDashboard → AvailableRoomsCard
+type AvailableRoomsCardProps = {
+  rooms: any[] // alle lokaler filtreret og behandlet i dashboardet
+  userId: string | null // id på den aktuelle bruger (student eller teacher)
+  filters: Filters // valgte filterværdier
+  fetchRooms: () => Promise<void> // funktion til at opdatere listen efter booking
+}
+
+// Kortet der viser selve tabellen med ledige lokaler
+function AvailableRoomsCard({
+  rooms,
+  userId,
+  filters,
+  fetchRooms,
+}: AvailableRoomsCardProps) {
   return (
+    // Mantine Paper = pænt indrammet boks med skalérbar styling
     <Paper shadow="sm" radius="lg" withBorder p="xl" className="mt-8">
-      {/* Overskrift for sektionen */}
+      {/* Titel på boksen */}
       <div className="font-semibold text-lg mb-4">Ledige lokaler</div>
 
-      {/* TableRooms modtager den færdige liste af lokaler og viser den i en tabel */}
-      <TableRooms rooms={rooms} />
+      {/* Selve tabellen med alle lokaler og deres status */}
+      <TableRooms
+        rooms={rooms}
+        userId={userId}
+        filters={filters}
+        fetchRooms={fetchRooms}
+      />
     </Paper>
   )
 }

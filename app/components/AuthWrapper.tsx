@@ -7,12 +7,28 @@ import { supabase } from "@/lib/supabaseClient"
 import { UserContext, UserData } from "@/app/contexts/UserContext"
 import LoadingSpinner from "./LoadingSpinner"
 
+/**
+ * ------------------------------------------------------------
+ * AuthWrapper
+ * ------------------------------------------------------------
+ * Dette component beskytter dashboardet og sørger for:
+ *  1) At tjekke om en bruger er logget ind via Supabase
+ *  2) At hente brugerens profil-data (navn + rolle)
+ *  3) At redirecte brugeren til det rigtige dashboard
+ *     - /dashboard/student
+ *     - /dashboard/teacher
+ *  4) At vise en spinner, mens data indlæses
+ *  5) At give hele appen adgang til brugerinfo via UserContext
+ */
 export default function AuthWrapper({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Gemmer den aktive brugerprofil
   const [user, setUser] = useState<UserData | null>(null)
+
+  // Styrer om vi stadig loader brugerdata
   const [loading, setLoading] = useState(true)
 
   const router = useRouter()
@@ -22,7 +38,8 @@ export default function AuthWrapper({
     const loadUser = async () => {
       setLoading(true)
 
-      // 1️⃣ Hent session-bruger
+      // 1️⃣ Hent session-bruger fra Supabase Auth
+      // Hvis ingen session findes → brugeren er ikke logget ind
       const {
         data: { user: sessionUser },
         error: sessionError,
@@ -33,21 +50,26 @@ export default function AuthWrapper({
       }
 
       // 2️⃣ Hent profil fra database
+      // 2️⃣ Hent brugerens profil i Supabase "profiles"-tabellen
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, role")
         .eq("user_id", sessionUser.id)
         .single()
 
-      if (profileError || !profile) {
+      if (!profile || profileError) {
+        // Hvis der ikke findes en profil → brug fallback-data
         setUser({
           name: sessionUser.email ?? "Ukendt bruger",
           role: "unknown",
           email: sessionUser.email ?? "",
+          id: sessionUser.id,
         })
       } else {
+        // Profil findes → brug data fra databasen
         setUser({
           name: profile.full_name ?? sessionUser.email ?? "Ukendt bruger",
+          // Sikrer at rollen altid er lowercase og korrekt
           role:
             profile.role?.toLowerCase() === "teacher"
               ? "teacher"
@@ -55,12 +77,14 @@ export default function AuthWrapper({
               ? "student"
               : "unknown",
           email: sessionUser.email ?? "",
+          id: sessionUser.id,
         })
       }
 
       setLoading(false)
 
-      // 3️⃣ Redirect kun hvis vi er på dashboard-roden
+      // 3️⃣ Redirect-logik
+      // Brugeren står på /dashboard men skal sendes det rigtige sted hen
       const role = profile?.role?.toLowerCase()
       const isDashboardRoot =
         pathname === "/dashboard" || pathname === "/dashboard/"
@@ -74,6 +98,7 @@ export default function AuthWrapper({
     loadUser()
   }, [router, pathname])
 
+  // 4️⃣ Mens vi henter brugerdata → vis loader
   if (loading)
     return (
       <div className="flex items-center justify-center w-full h-screen">
@@ -82,6 +107,11 @@ export default function AuthWrapper({
     )
 
   // ✅ Wrapper med UserContext
+  /**
+   * 5️⃣ Når brugerdata er hentet:
+   *  - Giv alle child-components adgang til brugeren via UserContext
+   *  - Render dashboard-layout (sidebar + sideindhold)
+   */
   return (
     <UserContext.Provider value={user}>
       <div className="flex min-h-screen bg-gray-50">
@@ -92,25 +122,19 @@ export default function AuthWrapper({
   )
 }
 
-//Dette component er en client-side wrapper som beskytter dashboardet, loader brugerens profil, redirecter dem korrekt og deler brugerdata via context.
-// Layout, som kræver authentication
-
 /**
- * Denne komponent fungerer som det beskyttede layout for dashboardet.
- * Den:
- *  - Henter og verificerer den aktuelle Supabase-bruger
- *  - Indlæser brugerens profil (navn og rolle) fra databasen
- *  - Redirecter brugeren til korrekt dashboard-del baseret på rolle (teacher/student)
- *  - Viser en loader, mens brugerdata hentes
- *  - Leverer brugerinfo via UserContext til hele dashboardet
- *  - Renderer sidebar + indholdslayout når brugeren er valideret
- */
-
-/**
- * Protected dashboard layout:
- *  - Tjekker Supabase session og henter brugerprofil
- *  - Redirecter automatisk til /teacher eller /student dashboards
- *  - Viser loader under hentning
- *  - Deler brugerdata globalt via UserContext
- *  - Viser sidebar og indhold for autentificerede brugere
+ * ------------------------------------------------------------
+ * Kort opsummering:
+ * ------------------------------------------------------------
+ * Dette component er din "beskyttede skal" rundt om dashboardet.
+ *
+ * Det:
+ *  - Tjekker om brugeren er logget ind
+ *  - Henter brugerprofil fra databasen
+ *  - Viser loader undervejs
+ *  - Redirecter baseret på rolle
+ *  - Deler brugerinfo via UserContext
+ *  - Viser sidebar + børn (children), når alt er klar
+ *
+ * Bruges i layout for at sikre, at alt indhold kun må ses af loggede brugere.
  */
