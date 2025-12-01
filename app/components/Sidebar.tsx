@@ -70,21 +70,21 @@ export default function Sidebar({ user }: SidebarProps) {
           {/* Book lokaler link */}
           <li className="flex items-center gap-3 p-2 rounded">
             {/* Heroicon outline, blå baggrund */}
-            <HiOutlineHome className="bg-blue-200 rounded text-3xl p-1 text-blue-500" />
+            <HiOutlineHome className="bg-blue-100 rounded text-3xl p-1 text-blue-500" />
             <a href={`/dashboard/${user.role}`}>Book lokaler</a>
           </li>
 
           {/* Mine bookinger link */}
           <li className="flex items-center gap-3 p-2 rounded">
             {/* Heroicon outline, grøn baggrund */}
-            <HiOutlineCalendar className="bg-green-200 rounded text-3xl p-1 text-green-600"/>
+            <HiOutlineCalendar className="bg-green-100 rounded text-3xl p-1 text-green-500"/>
             <a href={`/bookings/${user.role}`}>Mine bookinger</a>
           </li>
 
           {/* Hjælp link */}
           <li className="flex items-center gap-3 p-2 rounded">
             {/* Heroicon outline, lilla baggrund */}
-            <HiOutlineExclamationCircle className="bg-purple-300 rounded text-3xl p-1 text-purple-700" />
+            <HiOutlineExclamationCircle className="bg-purple-100 rounded text-3xl p-1 text-purple-500" />
             <a href="/help">Hjælp</a>
           </li>
         </ul>
