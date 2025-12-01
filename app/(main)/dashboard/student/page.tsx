@@ -67,7 +67,7 @@ export default function StudentDashboard() {
     const { data: roomsData } = await query
     const safeRooms = roomsData ?? []
 
-    let results: any[] = []
+    const results: any[] = []
 
     //
     // 2️⃣ For hvert lokale → hent dagens bookinger

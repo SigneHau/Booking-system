@@ -1,15 +1,17 @@
 "use client"
-// Gør komponentet client-side, så vi kan bruge Hooks (useState/useEffect)
+// FilterCard - bruger UserContext (useUser) i stedet for at hente role fra Supabase.
+// Sender: { floor, date, from, to, role } op til parent via setFilters.
 
 import { Text, Paper, Grid } from "@mantine/core"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
+import { useUser } from "@/app/contexts/UserContext" // genbrug UserContext
 import { supabase } from "@/lib/supabaseClient"
 
-// Beskriver strukturen af vores filter-objekt
-type Filters = {
+// Eksporteret type så Dashboards kan importere den hvis ønsket
+export type Filters = {
   floor: number | null
   date: Date | null
   from: string | null
@@ -17,26 +19,23 @@ type Filters = {
   role: "student" | "teacher"
 }
 
-// FilterCard modtager setFilters fra parent → sender brugerens valg op
-function FilterCard({
-  setFilters,
-}: {
-  setFilters: (filters: Filters) => void
-}) {
-  // Liste over alle etager hentet fra databasen
+function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
+  // LISTE: alle etager fra DB (for teacher)
   const [floors, setFloors] = useState<number[]>([])
 
-  // Brugerens rolle (student/teacher) – bestemmer hvilke etager og datoer man må vælge
-  const [userRole, setUserRole] = useState<"student" | "teacher">("student")
+  // Henter brugerinfo (inkl. role) fra context — ingen ekstra supabase-kald her
+  const user = useUser()
+  // Hvis user er null (ikke loadet) => fallback "student" for sikkerhed, men vi forsøger at bruge user.role
+  const userRole: "student" | "teacher" = (user?.role === "teacher" ? "teacher" : "student")
 
-  // Lokalt state for brugerens filtervalg
+  // LOKALT FILTER-STATE
   const [floor, setFloor] = useState<number | null>(null)
   const [date, setDate] = useState<Date | null>(null)
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 
   // -----------------------------------------------------------
-  // 1️⃣ HENT ETAGER FRA SUPABASE
+  // 1) Hent alle etager fra Supabase (kør kun én gang ved mount)
   // -----------------------------------------------------------
   useEffect(() => {
     async function loadFloors() {
@@ -46,76 +45,72 @@ function FilterCard({
         .order("floor", { ascending: true })
 
       if (error || !data) return
-
-      // Fjerner dubletter (så vi får fx [1,2,3,4])
       const uniqueFloors = [...new Set(data.map((f) => f.floor))]
-
-      setFloors(uniqueFloors) // lærere skal bruge disse
+      setFloors(uniqueFloors)
     }
-
     loadFloors()
   }, [])
 
   // -----------------------------------------------------------
-  // 2️⃣ HENT BRUGERENS ROLLE (student eller teacher)
-  // -----------------------------------------------------------
-  useEffect(() => {
-    async function getRole() {
-      const { data: auth } = await supabase.auth.getUser()
-      const user = auth?.user
-      if (!user) return
-
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
-
-      if (error || !profile) return
-
-      setUserRole(profile.role)
-    }
-
-    getRole()
-  }, [])
-
-  // -----------------------------------------------------------
-  // 3️⃣ STUDENT-BEHAVIOUR: Studerende må KUN vælge etage 3
+  // 2) STUDENT: Lås etage til 3
+  // - Kører når userRole ændres; userRole er en primitive (stabil dependency)
   // -----------------------------------------------------------
   useEffect(() => {
     if (userRole === "student") {
-      setFloors([3]) // Studerende må kun se denne etage
-      setFloor(3) // Vælg automatisk etage 3
+      // Studerende SKAL kun bruge etage 3
+      setFloors([3]) // vis kun 3 i selector
+      setFloor(3) // defaultværdien
     }
-    // Lærere → behold alle etager (fra loadFloors)
+    // Hvis teacher => do nothing her; teacher-håndtering sker i næste effect
   }, [userRole])
 
   // -----------------------------------------------------------
-  // 4️⃣ SEND FILTER-STATE OP TIL PARENT COMPONENT
+  // 3) TEACHER: når floors er hentet, sæt default floor hvis ikke valgt
+  // - Bruger floors.length (primitive) i dependency for at undgå problems med arrays
+  // - Tjekker floor === null så vi kun sætter default EN gang
+  // -----------------------------------------------------------
+  useEffect(() => {
+    if (userRole === "teacher" && floors.length > 0 && floor === null) {
+      setFloor(floors[0]) // default til første etage
+    }
+  }, [userRole, floors.length, floor])
+
+  // -----------------------------------------------------------
+  // 4) Send filter-state op til parent
+  // - Inkluderer role fra context (ikke fra asynkrone kald)
+  // - Dependecy array indeholder kun primitive værdier og setFilters reference
   // -----------------------------------------------------------
   useEffect(() => {
     setFilters({ floor, date, from, to, role: userRole })
-  }, [floor, date, from, to, userRole])
+  }, [floor, date, from, to, userRole, setFilters])
 
   // -----------------------------------------------------------
-  // 5️⃣ UI – VIS HELE FILTER-BOKSEN
+  // 5) UI
+  // - disabled for studerende
+  // - maxDate sættes ud fra role (14 dage vs 6 måneder)
   // -----------------------------------------------------------
+  const maxDate =
+    userRole === "student"
+      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 dage frem
+      : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 6 måneder frem
+
   return (
     <Paper shadow="sm" radius="lg" withBorder p="xl">
       <div className="font-semibold text-lg mb-4">Filter</div>
 
       <Grid gutter="xl">
-        {/* Etage-vælger */}
+        {/* Etage */}
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Text size="sm" fw={500} mb={4}>
             Etage
           </Text>
 
           <FloorSelector
-            floors={floors} // hvilke etager vises
-            value={floor} // valgt etage
-            onChange={setFloor} // opdater floor-state
-            disabled={userRole === "student"} // studerende må ikke ændre
+            floors={floors}
+            value={floor}
+            onChange={setFloor}
+            // Disabled kun for student; teacher kan vælge frit (og floors er tilgængelige efter load)
+            disabled={userRole === "student"}
           />
         </Grid.Col>
 
@@ -125,18 +120,10 @@ function FilterCard({
             Dato
           </Text>
 
-          <DateSelector
-            value={date}
-            onChange={setDate}
-            maxDate={
-              userRole === "student"
-                ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 dage frem
-                : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 6 måneder frem
-            }
-          />
+          <DateSelector value={date} onChange={setDate} maxDate={maxDate} />
         </Grid.Col>
 
-        {/* Tidspunkt fra */}
+        {/* Tid fra */}
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Text size="sm" fw={500} mb={4}>
             Tidspunkt fra
@@ -144,7 +131,7 @@ function FilterCard({
           <TimeSelector value={from} onChange={setFrom} />
         </Grid.Col>
 
-        {/* Tidspunkt til */}
+        {/* Tid til */}
         <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
           <Text size="sm" fw={500} mb={4}>
             Tidspunkt til
@@ -157,3 +144,14 @@ function FilterCard({
 }
 
 export default FilterCard
+
+
+// Hvad jeg gjorde i FilterCard (kort):
+
+// Brugte useUser() fra context i stedet for at hente role fra Supabase.
+
+// Fjernede lokale async role-kald. Rolle er nu stabil fra context.
+
+// Brugte floors.length i useEffect-deps for at undgå React-fejl når array ændrer størrelse.
+
+// Sætter role i setFilters direkte fra context, så parent får den korrekte rolle uden at ændre objektets “form” over tid.
