@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaHome, FaCalendarAlt, FaExclamationCircle } from "react-icons/fa";
+// Heroicons outline (streg) for navigation ikoner
+import { HiOutlineHome, HiOutlineCalendar, HiOutlineExclamationCircle } from "react-icons/hi";
 import PrimaryButton from "./PrimaryButton";
-import LoadingSpinner from "./LoadingSpinner"; // Loader fra Mantine
+import LoadingSpinner from "./LoadingSpinner"; // Loader komponent fra Mantine
 
+// Typing for Sidebar props
 type SidebarProps = {
   user: {
     name: string;
@@ -17,30 +19,31 @@ export default function Sidebar({ user }: SidebarProps) {
   // State til avatar-URL
   const [avatarUrl, setAvatarUrl] = useState<string>("");
 
+  // useEffect kører, når komponenten mountes eller 'user' ændrer sig
   useEffect(() => {
-    if (!user) return; // Hvis ingen bruger, gør vi ingenting
+    if (!user) return; // Hvis der ikke er nogen bruger, gør vi ingenting
 
-    // Brug email som key i localStorage, så hver bruger får sit eget billede
+    // Gemmer avatar per bruger i localStorage, så de får samme billede hver gang
     const storageKey = `avatarUrl_${user.email}`;
     const savedAvatar = localStorage.getItem(storageKey);
 
     if (savedAvatar) {
-      // Hvis der allerede er gemt en avatar for denne bruger, brug den
+      // Hvis avatar allerede er gemt, brug den
       setAvatarUrl(savedAvatar);
     } else {
-      // Ellers hent et nyt random billede fra Random User API
+      // Ellers hent et nyt tilfældigt billede fra Random User API
       fetch("https://randomuser.me/api/")
-        .then((res) => res.json()) // Konverter JSON-respons til JS-objekt
+        .then((res) => res.json())
         .then((data) => {
-          const url = data.results[0].picture.large; // Tag billed-URL
-          localStorage.setItem(storageKey, url); // Gem kun for denne bruger
-          setAvatarUrl(url); // Opdater state, så avatar vises
+          const url = data.results[0].picture.large; // Tag billedets URL
+          localStorage.setItem(storageKey, url); // Gem i localStorage
+          setAvatarUrl(url); // Opdater state
         })
         .catch((err) => console.error("Fejl ved hentning af avatar:", err));
     }
-  }, [user]); // Kører kun, når 'user' ændrer sig (typisk ved login)
+  }, [user]); // Effekt kører kun når 'user' ændrer sig
 
-  // Loader vises, mens brugerdata indlæses
+  // Hvis bruger-data ikke er tilgængelig endnu, vis loader
   if (!user) {
     return (
       <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
@@ -55,28 +58,33 @@ export default function Sidebar({ user }: SidebarProps) {
     <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
       {/* Logo + titel */}
       <div className="flex items-center gap-2 mb-12">
-         {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* ESLint kommentar for at tillade <img> i Next.js */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-ek.png" alt="Logo" width={80} height={30} />
-        <h1 className="font-heading font-bold text-xl text-black">
-          Booking Lyngby
-        </h1>
+        <h1 className="font-heading font-bold text-xl text-black">Booking Lyngby</h1>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 w-full">
-        <ul className="space-y-3">
-          <li className="flex items-center gap-3 p-2 rounded text-base">
-            <FaHome />
+      <nav className="flex-1 w-full ml-5">
+        <ul className="space-y-3  ">
+          {/* Book lokaler link */}
+          <li className="flex items-center gap-3 p-2 rounded">
+            {/* Heroicon outline, blå baggrund */}
+            <HiOutlineHome className="bg-blue-200 rounded text-3xl p-1 text-blue-500" />
             <a href={`/dashboard/${user.role}`}>Book lokaler</a>
           </li>
 
-          <li className="flex items-center gap-3 p-2 rounded bg-primary">
-            <FaCalendarAlt />
+          {/* Mine bookinger link */}
+          <li className="flex items-center gap-3 p-2 rounded">
+            {/* Heroicon outline, grøn baggrund */}
+            <HiOutlineCalendar className="bg-green-200 rounded text-3xl p-1 text-green-600"/>
             <a href={`/bookings/${user.role}`}>Mine bookinger</a>
           </li>
 
-          <li className="flex items-center gap-3 p-2 rounded bg-primary hover:bg-hover text-secondary text-base">
-            <FaExclamationCircle />
+          {/* Hjælp link */}
+          <li className="flex items-center gap-3 p-2 rounded">
+            {/* Heroicon outline, lilla baggrund */}
+            <HiOutlineExclamationCircle className="bg-purple-300 rounded text-3xl p-1 text-purple-700" />
             <a href="/help">Hjælp</a>
           </li>
         </ul>
@@ -92,14 +100,15 @@ export default function Sidebar({ user }: SidebarProps) {
             <div className="w-16 h-16 bg-gray-300" /> // fallback placeholder
           )}
 
+          {/* Brugerens info */}
           <div className="flex flex-col">
-            {/* Brugerens navn */}
+            {/* Navn */}
             <p className="font-heading text-base font-bold">{user.name}</p>
-            {/* Brugerens rolle med stort begyndelsesbogstav */}
+            {/* Rolle med stort begyndelsesbogstav */}
             <p className="text-sm opacity-90">
               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </p>
-            {/* Brugerens email */}
+            {/* Email */}
             <p className="text-sm opacity-70 mb-6">{user.email}</p>
 
             {/* Log ud knap */}
@@ -112,28 +121,26 @@ export default function Sidebar({ user }: SidebarProps) {
 }
 
 /* 
-Sidebar-komponent forklaring:
+Kommentarer om koden generelt:
 
-1. Viser sidebar med:
-   - Logo og titel øverst
+1. Sidebar viser:
+   - Logo + titel øverst
    - Navigation links (Book lokaler, Mine bookinger, Hjælp)
    - Bruger-info nederst (avatar, navn, rolle, email)
-   - Log ud-knap via PrimaryButton
+   - Log ud-knap
 
 2. Avatar hentes fra Random User API:
-   - Kun én gang pr. bruger (gemmes i localStorage under brugerens email)
-   - Hvis brugeren navigerer rundt, ændres billedet ikke
-   - Andre brugere får deres eget tilfældige billede
+   - Gemmes per bruger i localStorage
+   - Bevares ved navigation mellem sider
 
-3. Loader vises, mens bruger-data indlæses
+3. Ikoner:
+   - Alle er Heroicons outline for ens streg-stil
+   - Baggrundsfarve på ikoner matches farveskema
+   - Padding og størrelse sikrer visuel balance
 
-4. Komponent er dynamisk, afhænger af `user` prop:
-   - Hvis `user` er null, vises kun loader
-   - Hvis `user` er tilgængelig, vises sidebar med bruger-info og navigation
+4. Loader vises, mens bruger-data hentes
+
+5. Komponent afhænger af 'user' prop:
+   - Hvis user er null → loader
+   - Hvis user findes → sidebar med info og navigation
 */
-
-// Forklaring:
-
-// @next/next/no-img-element er reglen, som Next.js ESLint-plugin bruger, fordi de anbefaler at bruge <Image> fra next/image i stedet for <img> for optimering.
-
-// Kommentaren fortæller ESLint at ignorere kun den næste linje, så de gule streger forsvinder.
