@@ -48,7 +48,7 @@ const BookingContentModal = ({
 
       {/* Vis lokale-id */}
       <Text>
-        <strong>Lokal:</strong> {room}
+        <strong>Lokale:</strong> {room}
       </Text>
 
       {/* Datoen er allerede formateret i TableRooms (DD-MM-YYYY)
@@ -68,3 +68,12 @@ const BookingContentModal = ({
 }
 
 export default BookingContentModal
+
+/*
+  Hvad gør komponentet “BookingContentModal”?
+
+  Komponenten viser en simpel, overskuelig opsummering af en booking i et modal.
+  Den modtager etage, lokale, dato og tidsrum som props, formaterer tiden pænt
+  og præsenterer informationen i en vertikal liste via Mantines <Stack>.
+  Bruges typisk inde i modalet, når brugeren skal bekræfte en booking.
+*/

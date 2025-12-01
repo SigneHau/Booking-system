@@ -5,14 +5,17 @@ import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
 import { supabase } from "@/lib/supabaseClient"
+import ModalButtons from "./ModalButtons"
 
 //
 // -------------------------------------------------------------
 // Typedefs – struktur for data
+// definerer struktur for rummet og filterværdier
 // -------------------------------------------------------------
 //
 
 // Room indeholder alle felter + bookings-array (alle bookinger for valgt dag)
+// Ét enkelt mødelokale + alle bookinger for den valgte dato
 type Room = {
   id: number
   roomid: string
@@ -20,11 +23,11 @@ type Room = {
   roomsize: number
   floor: number
   availability: string
-  booked: boolean // ← true hvis det valgte tidsrum er optaget
-  bookings: any[] // ← alle booking-intervaller på den valgte dag
+  booked: boolean // ← true hvis tidsintervallet brugeren har valgt allerede er optaget
+  bookings: any[] // ←  alle bookinger for dagen (fra database)
 }
 
-// Brugte filterværdier fra filterkortet
+// De valgte filterværdier fra filterkortet (dato, tid, etage, rolle)
 type Filters = {
   floor: number | null
   date: Date | null
@@ -34,20 +37,21 @@ type Filters = {
 }
 
 // Props sendt fra dashboard → AvailableRoomsCard → TableRooms
+// Props der sendes ind i TableRooms fra parent-komponenten
 type TableRoomsProps = {
   rooms: Room[]
   userId: string | null
   filters: Filters
-  fetchRooms: () => Promise<void> // ← opdaterer UI efter booking
+  fetchRooms: () => Promise<void> // funktion som opdaterer rummet efter booking
 }
 
 //
 // -------------------------------------------------------------
-// Helper: Formatér dato pænt (DK)
+// Helper: Formatér dato pænt (DK format)
 // 2025-12-01 → 01-12-2025
 // -------------------------------------------------------------
 //
-function formatDateDK(date: Date) {
+export function formatDateDK(date: Date) {
   return date
     .toLocaleDateString("da-DK", {
       day: "2-digit",
@@ -60,8 +64,8 @@ function formatDateDK(date: Date) {
 function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
   /**
    * -------------------------------------------------------------
-   * Åbner booking-modal når man klikker "Book"
-   * Viser: lokale, dato, tid, info
+   * Åbner modal når brugeren klikker “Book”
+   * Viser bookinginformation samt “Book” / “Annuller”-knapper
    * -------------------------------------------------------------
    */
   const handleBooking = (room: Room) => {
@@ -69,7 +73,7 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
       centered: true,
       size: "xs",
 
-      // Custom styling af modal
+      // styling af modal
       styles: {
         content: {
           width: "280px",
@@ -89,9 +93,10 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
         </div>
       ),
 
-      // Selve modalens indhold
+      // Indholdet i modalet (bookinginformation + knapper)
       children: (
         <div className="space-y-4">
+          {/* Info om booking (lokale, dato, tid) */}
           <BookingContentModal
             floor={room.floor.toString()}
             room={room.roomid}
@@ -104,26 +109,23 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
             timeTo={filters.to ?? "??"}
           />
 
-          {/* Handling-knapper */}
-          <div className="flex gap-3 pt-4 justify-center">
-            {/* Bekræft booking */}
-            <button
-              className="bg-blue-800 hover:bg-blue-700 cursor-pointer hover:scale-105 transition-all duration-200 text-white px-4 py-2 rounded-md"
-              onClick={async () => {
-                await handleConfirmBooking(room)
-              }}
-            >
-              Book
-            </button>
-
-            {/* Luk modal */}
-            <button
-              className="bg-red-600 hover:bg-red-500 cursor-pointer hover:scale-105 transition-all duration-200 text-white px-4 py-2 rounded-md"
-              onClick={() => modals.closeAll()}
-            >
-              Annuller
-            </button>
-          </div>
+          {/* Knapper i bunden af modal */}
+          <ModalButtons
+            buttons={[
+              {
+                label: "Book",
+                color: "blue",
+                action: async () => {
+                  await handleConfirmBooking(room)
+                },
+              },
+              {
+                label: "Annuller",
+                color: "red",
+                action: () => modals.closeAll(),
+              },
+            ]}
+          />
         </div>
       ),
     })
@@ -131,8 +133,8 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
 
   /**
    * -------------------------------------------------------------
-   * Gem booking i Supabase når brugeren bekræfter
-   * Indeholder også overlap-check via unikt database constraint
+   * Sender booking-data til Supabase når brugeren trykker “Book”
+   * Tjekker automatisk overlap-check via GIST constraint i databasen
    * -------------------------------------------------------------
    */
   async function handleConfirmBooking(room: Room) {
@@ -150,7 +152,7 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
     // Formatér dato → "YYYY-MM-DD"
     const dateStr = date.toISOString().split("T")[0]
 
-    // Send booking til Supabase
+    // Opret booking i Supabase
     const { data, error } = await supabase.from("bookings").insert({
       roomid: room.roomid,
       date: dateStr,
@@ -159,12 +161,8 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
       created_by: userId,
     })
 
-    //
-    // -------------------------------------------------------------
-    // HÅNDTERER OVERLAPPENDE BOOKINGER AUTOMATISK (nyt!)
+    // Håndter overlap-fejl
     // Dette virker pga. vores GIST exclude-constraint i databasen.
-    // -------------------------------------------------------------
-    //
     if (error) {
       if (error.message.includes("bookings_no_overlap")) {
         alert("Dette tidspunkt er allerede booket. Vælg et andet tidsrum.")
@@ -182,7 +180,7 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
 
   /**
    * -------------------------------------------------------------
-   * Tabelrækker: viser ALLE bookinger for dagen pr. lokale
+   * Generér tabelrækker: viser ALLE bookinger for dagen pr. lokale
    * -------------------------------------------------------------
    */
   const rows = rooms.map((room) => (
@@ -265,3 +263,23 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
 }
 
 export default TableRooms
+
+/* 
+  Hvad gør komponentet “TableRooms”?
+
+  TableRooms viser en liste af mødelokaler og deres status for den valgte dag.
+  Brugeren kan se:
+  - lokaleinfo (navn, etage, kapacitet)
+  - åbningstider
+  - alle bookede tidsrum for dagen
+  - om det valgte tidsrum er ledigt eller optaget
+
+  Brugeren kan klikke “Book” på et lokale, hvorefter:
+  - et modal åbnes med booking-information
+  - brugeren kan bekræfte og gemme bookingen i Supabase
+  - UI opdateres automatisk via fetchRooms()
+
+  Kort fortalt:
+  Komponenten håndterer hele bookingen af et lokale — fra visning af data
+  til åbning af modal, bekræftelse, oprettelse i Supabase og opdatering af UI.
+*/
