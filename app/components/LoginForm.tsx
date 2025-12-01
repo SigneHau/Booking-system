@@ -1,5 +1,3 @@
-// /app/components/LoginForm.tsx
-
 "use client";
 
 import { useState } from "react";
@@ -20,6 +18,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
+      // Log ind via Supabase
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -32,6 +31,7 @@ export default function LoginForm() {
 
       const userId = data.user.id;
 
+      // Hent brugerprofil fra Supabase
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, role")
@@ -44,9 +44,13 @@ export default function LoginForm() {
         return;
       }
 
-      const role = profile.role.toLowerCase();
+      // Gem brugerens navn og email i localStorage til Sidebar
+      localStorage.setItem("userName", profile.full_name);
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userRole", profile.role.toLowerCase());
 
-      // 🔥 Rettet til dine rigtige dashboards
+      // Naviger til korrekt dashboard
+      const role = profile.role.toLowerCase();
       if (role === "student") {
         router.push("/dashboard/student");
       } else if (role === "teacher") {
@@ -65,15 +69,11 @@ export default function LoginForm() {
 
   return (
     <Container size={420} my={90}>
-      <Paper
-        p={0}
-        radius="sm"
-        className=" w-[300px]"
-      >
+      <Paper p={0} radius="sm" className=" w-[300px]">
         <form onSubmit={handleSubmit}>
           <TextInput
             label="E-mail"
-            placeholder="Skriv din adgangskode"
+            placeholder="Skriv din email"
             required
             radius="sm"
             value={email}
@@ -92,14 +92,15 @@ export default function LoginForm() {
 
           {error && <Text color="red" mt="sm">{error}</Text>}
 
-          <Button className="mt-10 ml-30  "
+          <Button
+            className="mt-10 ml-30"
             radius="sm"
             type="submit"
             styles={{
               root: {
-                color: "black",          
-                border: "1px solid gray", 
-                backgroundColor: "white", 
+                color: "black",
+                border: "1px solid gray",
+                backgroundColor: "white",
               },
             }}
             disabled={loading}

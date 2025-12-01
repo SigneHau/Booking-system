@@ -16,21 +16,16 @@ export async function loginAuth(email: string, password: string) {
 
 
 
-// // SIGNUP:
-// // Opretter en ny bruger i Supabase Auth.
-// // Brugeren får en bekræftelsesmail og bliver først aktiv efter bekræftelse.
-// // Der oprettes ingen session her – signup logger dig ikke ind. 
-// export async function signUpAuth(email: string, password: string) {
-//   const { data, error } = await supabase.auth.signUp({
-//     email,
-//     password,
-//   })
+// Best practice anbefaling
 
-//   if (error) {
-//     return { error }
-//   }
-//   return { data }
-// }
+// Selvom dit projekt lige nu kun har én login-side, anbefales det stadig at beholde loginAuth i auth.ts. Det giver dig fleksibilitet senere, og det er mere “Next.js/React-venligt”.
+
+// Page-komponenten (f.eks. HomePage) håndterer UI, form og routing.
+
+// auth.ts håndterer API-kald og Supabase-login.
+
+// Det gør koden renere og lettere at vedligeholde.
+
 
 
 
