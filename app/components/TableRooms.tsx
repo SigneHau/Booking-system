@@ -6,7 +6,7 @@ import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
 import { supabase } from "@/lib/supabaseClient"
 import ModalButtons from "./ModalButtons"
-import { useUser } from "@/hooks/useUser"
+import { useUser, type User } from "@/hooks/useUser"
 
 //
 // -------------------------------------------------------------
@@ -34,7 +34,7 @@ type Filters = {
   date: Date | null
   from: string | null
   to: string | null
-  role: "student" | "teacher"
+  role: User["role"]
 }
 
 // Props sendt fra dashboard → AvailableRoomsCard → TableRooms

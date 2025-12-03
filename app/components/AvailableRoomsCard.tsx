@@ -1,5 +1,6 @@
 import { Paper } from "@mantine/core"
 import TableRooms from "./TableRooms"
+import type { User } from "@/hooks/useUser"
 
 // Filtrene brugeren har valgt (etage, dato, tidsrum, rolle)
 type Filters = {
@@ -7,7 +8,7 @@ type Filters = {
   date: Date | null
   from: string | null
   to: string | null
-  role: "student" | "teacher"
+  role: User["role"]
 }
 
 // Props der sendes fra StudentDashboard → AvailableRoomsCard

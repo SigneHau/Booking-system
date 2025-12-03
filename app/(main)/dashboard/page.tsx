@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import FilterCard from "../../components/FilterCard"
 import AvailableRoomsCard from "../../components/AvailableRoomsCard"
 import RoleBadge from "@/app/components/RoleBadge"
-import { useUser } from "@/hooks/useUser"
+import { useUser, type User } from "@/hooks/useUser"
 import { supabase } from "@/lib/supabaseClient"
 
 type Filters = {
@@ -12,21 +12,21 @@ type Filters = {
   date: Date | null
   from: string | null
   to: string | null
-  role: "student" | "teacher"
+  role: User["role"]
 }
 
 export default function Dashboard() {
   // -------------------------------------------
   // STATE: bruger + filtre
   // -------------------------------------------
-  const { user } = useUser()
+  const { user, isStudent } = useUser()
 
   const [filters, setFilters] = useState<Filters>({
     floor: null,
     date: null,
     from: null,
     to: null,
-    role: "teacher",
+    role: "Teacher",
   })
 
   const [rooms, setRooms] = useState<any[]>([])
@@ -36,16 +36,21 @@ export default function Dashboard() {
   // -------------------------------------------------------------
   async function fetchRooms() {
     const { floor, date, from, to } = filters
-
+    
     if (!floor || !date || !from || !to) return
 
     const dateStr = date.toISOString().split("T")[0]
 
-    // Lærere må se alle rum
-    const { data: roomsData } = await supabase
+    const base = supabase
       .from("meetingrooms")
       .select("*")
       .eq("floor", floor)
+
+    const query = isStudent
+      ? base.eq("local", "Mødelokale") // Studerende: kun Mødelokale
+      : base // Lærere: alle lokaler på etagen
+
+    const { data: roomsData } = await query
 
     const safeRooms = roomsData ?? []
     const results: any[] = []

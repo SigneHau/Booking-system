@@ -26,5 +26,8 @@ export function useUser() {
       .finally(() => setLoading(false)) // Sætter loading til false, når brugerdata er hentet
   }, []) // [] betyder, at useEffect kun kører en gang, når komponenten mountes
 
-  return { user, loading } // Returnerer brugerdata og loading state
+  const isStudent = user?.role === "Student"
+  const isTeacher = user?.role === "Teacher"
+
+  return { user, loading, isStudent, isTeacher } // Returnerer brugerdata, loading state og rolle-flags
 }

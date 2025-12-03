@@ -17,9 +17,7 @@ export type Filters = {
 }
 
 function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
-  const { user } = useUser()
-  const isStudent = user?.role === "Student"
-  const isTeacher = user?.role === "Teacher"
+  const { user, isStudent, isTeacher } = useUser()
   // Liste af etager hentet fra databasen (kun relevant for lærere)
   const [floors, setFloors] = useState<number[]>([])
 
