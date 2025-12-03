@@ -6,23 +6,22 @@ import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
 import { supabase } from "@/lib/supabaseClient"
-import { useUser } from "@/hooks/useUser"
+import { useUser, type User } from "@/hooks/useUser"
 
 export type Filters = {
   floor: number | null
   date: Date | null
   from: string | null
   to: string | null
-  role: "student" | "teacher"
+  role: User["role"]
 }
 
 function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   const { user } = useUser()
+  const isStudent = user?.role === "Student"
+  const isTeacher = user?.role === "Teacher"
   // Liste af etager hentet fra databasen (kun relevant for lærere)
   const [floors, setFloors] = useState<number[]>([])
-
-  const userRole: "student" | "teacher" = user?.role === "teacher" ? "teacher" : "student"
-  const userId = user?.id ?? null // Kan bruges i handleConfirmBooking
 
   // Lokalt filter-state
   const [floor, setFloor] = useState<number | null>(null)
@@ -51,27 +50,27 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   // 2) STUDENT: lås etagen til 3
   // -----------------------------------------------------------
   useEffect(() => {
-    if (userRole === "student") {
-      setFloors([3])  // Studerende må kun se etage 3
-      setFloor(3)     // Og kan kun vælge 3
+    if (isStudent) {
+      setFloors([3]) // Studerende må kun se etage 3
+      setFloor(3) // Og kan kun vælge 3
     }
-  }, [userRole])
+  }, [isStudent])
 
   // -----------------------------------------------------------
   // 3) TEACHER: hvis etager er hentet, sæt en default-værdi
   // -----------------------------------------------------------
   useEffect(() => {
-    if (userRole === "teacher" && floors.length > 0 && floor === null) {
-      setFloor(floors[0])  // Første etage i listen
+    if (isTeacher && floors.length > 0 && floor === null) {
+      setFloor(floors[0]) // Første etage i listen
     }
-  }, [userRole, floors.length, floor])
+  }, [isTeacher, floors.length, floor])
 
   // -----------------------------------------------------------
   // 4) Send alle filtre op til parent-komponenten
   // -----------------------------------------------------------
   useEffect(() => {
-    setFilters({ floor, date, from, to, role: userRole })
-  }, [floor, date, from, to, userRole, setFilters])
+    setFilters({ floor, date, from, to, role: user?.role as User["role"] })
+  }, [floor, date, from, to, user, setFilters])
 
   // -----------------------------------------------------------
   // 5) maxDate afhænger af rollen:
@@ -79,7 +78,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   //    - Teacher: 6 måneder frem
   // -----------------------------------------------------------
   let maxDate: Date
-  if (userRole === "student") {
+  if (isStudent) {
     maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
   } else {
     maxDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
@@ -100,7 +99,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
             floors={floors}
             value={floor}
             onChange={setFloor}
-            disabled={userRole === "student"} // Studerende kan ikke ændre
+            disabled={isStudent} // Studerende kan ikke ændre
           />
         </Grid.Col>
 

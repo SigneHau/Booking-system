@@ -8,7 +8,7 @@ export type User = {
   id: string
   email: string | undefined
   full_name: string
-  role: "student" | "teacher"
+  role: "Student" | "Teacher"
 }
 
 // Hook til at hente brugerdata fra Supabase og gemme i state
