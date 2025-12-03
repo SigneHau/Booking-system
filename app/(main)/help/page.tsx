@@ -1,48 +1,14 @@
-// app/(main)/help/page.tsx
-"use client"; // ⚡️ Dette skal være client, ellers virker useEffect ikke
-import { useEffect, useState } from "react";
-import { getUser } from "@/lib/auth";
-import RoleBadge from "@/app/components/RoleBadge";
+"use client"
 
+import RoleBadge from "@/app/components/RoleBadge"
 
-// -------------------------------------------------------------
-// HelpPage: viser vejledning til booking og brugerens rolle
-// -------------------------------------------------------------
 export default function HelpPage() {
-  const [role, setRole] = useState<"student" | "teacher" | "unknown">("unknown");
-  // ⚡️ VIGTIGT: Vi starter med at sige, at vi indlæser, indtil getUser er færdig
-  const [isLoading, setIsLoading] = useState(true); 
-
-  useEffect(() => {
-    async function loadRole() {
-      // 1. Start med at sætte loading til sandt
-      setIsLoading(true); 
-
-      const user = await getUser();
-
-      if (user && user.role) {
-        // Hvis bruger og rolle er fundet
-        setRole(user.role as "student" | "teacher");
-      } else {
-        // Hvis ingen bruger er fundet (logget ud)
-        setRole("unknown");
-      }
-      
-      // 2. Sæt loading til falsk, når data er hentet (uanset om der var en bruger eller ej)
-      setIsLoading(false); 
-    }
-
-    loadRole();
-  }, []);
-  // -------------------------------------------------------------
-  // UI: Overskrift + RoleBadge + step-by-step guide
-  // -------------------------------------------------------------
   return (
     <div className="p-6">
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Sådan booker du</h1>
         {/* ⚡️ viser brugerens rolle */}
-        <RoleBadge role={role} />
+        <RoleBadge />
       </div>
 
       <ol className="list-decimal pl-6 space-y-4 text-lg leading-7">

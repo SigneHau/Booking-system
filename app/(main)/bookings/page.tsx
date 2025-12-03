@@ -1,40 +1,15 @@
 "use client"
-import { supabase } from "@/lib/supabaseClient"
+
 import { useState, useEffect } from "react"
 import { Paper } from "@mantine/core"
-
+import { supabase } from "@/lib/supabaseClient"
+import { useUser } from "@/hooks/useUser"
 import RoleBadge from "@/app/components/RoleBadge"
 import UserBookingsTable from "@/app/components/UserBookingsTable"
-import { getUser } from "@/lib/auth" // ⚡️ hent getUser
 
 const BookingPage = () => {
-  // -------------------------------------------------------------
-  // 1️⃣ STATE: Hent og gem den aktuelle bruger
-  // -------------------------------------------------------------
-  const [user, setUser] = useState<{
-    id: string
-    email: string
-    full_name: string
-    role: "student" | "teacher"
-  } | null>(null)
-
-  // -------------------------------------------------------------
-  // 2️⃣ STATE: Alle bookinger for denne bruger (inkl. lokale-info)
-  // -------------------------------------------------------------
+  const { user } = useUser()
   const [bookings, setBookings] = useState<any[]>([])
-
-  // -------------------------------------------------------------
-  // 3️⃣ HENT BRUGER NÅR COMPONENT MOUNTES
-  // -------------------------------------------------------------
-  useEffect(() => {
-    async function loadUser() {
-      const currentUser = await getUser()
-      if (currentUser) {
-        setUser(currentUser)
-      }
-    }
-    loadUser()
-  }, [])
 
   // -------------------------------------------------------------
   // 4️⃣ Funktion: Henter ALLE bookinger som brugeren har lavet
@@ -77,7 +52,7 @@ const BookingPage = () => {
     <div>
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Mine Bookinger</h1>
-        <RoleBadge role={user?.role ?? "unknown"} />
+        <RoleBadge />
       </div>
 
       <Paper shadow="sm" radius="lg" withBorder p="xl" className="mt-8">

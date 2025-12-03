@@ -10,37 +10,11 @@ import {
 import PrimaryButton from "./PrimaryButton"
 import LoadingSpinner from "./LoadingSpinner" // Loader komponent fra Mantine
 import { usePathname } from "next/navigation"
-import { getUser } from "@/lib/auth"
-
-
-
+import { useUser } from "@/hooks/useUser"
 
 export default function Sidebar() {
-
- const [user, setUser] = useState<{
-  full_name: string
-  email: string
-  role: string
-} | null>(null)
-  // State til avatar-URL
+  const { user, loading } = useUser()
   const [avatarUrl, setAvatarUrl] = useState<string>("")
-
-
-  //Todo: 
-  //tag funktione med cla til supabase med brugerdata
-   // Hent brugerprofil fra Supabase
-    // Hent brugerprofil fra Supabase
-
-
-  useEffect(() => {
-  async function load() {
-    const userData = await getUser()
-    setUser(userData)
-  }
-  load()
-}, [])
-
-        
 
   // Hent aktuelt URL-path - til den grå baggrund som makere den side du står på i menuen
   const pathname = usePathname()
@@ -51,15 +25,15 @@ export default function Sidebar() {
     fetch("https://randomuser.me/api/")
       .then((res) => res.json())
       .then((data) => {
-        const url = data.results[0].picture.large // Tag billedets URL
+       const url = data.results[0].picture.large // Tag billedets URL
 
         setAvatarUrl(url) // Opdater state
       })
       .catch((err) => console.error("Fejl ved hentning af avatar:", err))
-  }, [user]) // Effekt kører kun når 'user' ændrer sig
+ }, [user]) // Effekt kører kun når 'user' ændrer sig
 
   // Hvis bruger-data ikke er tilgængelig endnu, vis loader
-  if (!user) {
+  if (loading || !user) {
     return (
       <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
         <div className="mt-20">

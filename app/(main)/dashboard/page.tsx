@@ -4,10 +4,9 @@ import { useState, useEffect } from "react"
 import FilterCard from "../../components/FilterCard"
 import AvailableRoomsCard from "../../components/AvailableRoomsCard"
 import RoleBadge from "@/app/components/RoleBadge"
-import { getUser } from "@/lib/auth" // 👈 hent getUser
+import { useUser } from "@/hooks/useUser"
 import { supabase } from "@/lib/supabaseClient"
 
-// Filters fortæller hvilke kriterier brugeren har valgt
 type Filters = {
   floor: number | null
   date: Date | null
@@ -20,12 +19,7 @@ export default function Dashboard() {
   // -------------------------------------------
   // STATE: bruger + filtre
   // -------------------------------------------
-  const [user, setUser] = useState<{
-    id: string
-    email: string
-    full_name: string
-    role: "student" | "teacher"
-  } | null>(null)
+  const { user } = useUser()
 
   const [filters, setFilters] = useState<Filters>({
     floor: null,
@@ -36,19 +30,6 @@ export default function Dashboard() {
   })
 
   const [rooms, setRooms] = useState<any[]>([])
-
-  // -------------------------------------------------------------
-  // 1️⃣ HENT BRUGER NÅR COMPONENT MOUNTES
-  // -------------------------------------------------------------
-  useEffect(() => {
-    async function loadUser() {
-      const currentUser = await getUser()
-      if (currentUser) {
-        setUser(currentUser)
-      }
-    }
-    loadUser()
-  }, [])
 
   // -------------------------------------------------------------
   // 2️⃣ FLYTTET HEROP → så den bruges før useEffect
@@ -120,7 +101,7 @@ export default function Dashboard() {
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Book et lokale</h1>
         {/* ⚡️ vis brugerens rolle */}
-        <RoleBadge role={user?.role ?? "unknown"} />
+        <RoleBadge />
       </div>
 
       <FilterCard setFilters={setFilters} />

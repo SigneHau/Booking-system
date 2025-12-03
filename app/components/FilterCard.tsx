@@ -1,18 +1,13 @@
 "use client"
 
-// FilterCard - bruger nu getUser() fra auth i stedet for context
-// Sender { floor, date, from, to, role } op til parent via setFilters
-
 import { Text, Paper, Grid } from "@mantine/core"
 import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
-
 import { supabase } from "@/lib/supabaseClient"
-import { getUser } from "@/lib/auth"
+import { useUser } from "@/hooks/useUser"
 
-// Eksporteret type så Dashboards kan importere den
 export type Filters = {
   floor: number | null
   date: Date | null
@@ -22,34 +17,10 @@ export type Filters = {
 }
 
 function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
+  const { user } = useUser()
   // Liste af etager hentet fra databasen (kun relevant for lærere)
   const [floors, setFloors] = useState<number[]>([])
 
-  // -------------------------------------------------------------
-  // Tilføj state til user (fra Supabase/auth)
-  // -------------------------------------------------------------
-  const [user, setUser] = useState<{
-    id: string
-    full_name: string
-    email: string
-    role: "student" | "teacher"
-  } | null>(null)
-
-  // -------------------------------------------------------------
-  // Hent user fra Supabase via getUser() når komponenten mountes
-  // -------------------------------------------------------------
-  useEffect(() => {
-    async function loadUser() {
-      const currentUser = await getUser()
-      if (currentUser) {
-        setUser(currentUser) // gem hele brugeren
-      }
-    }
-
-    loadUser()
-  }, [])
-
-  // Hvis user ikke er klar endnu → default til student
   const userRole: "student" | "teacher" = user?.role === "teacher" ? "teacher" : "student"
   const userId = user?.id ?? null // Kan bruges i handleConfirmBooking
 

@@ -6,8 +6,7 @@ import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
 import { supabase } from "@/lib/supabaseClient"
 import ModalButtons from "./ModalButtons"
-import { getUser } from "@/lib/auth"
-import { useEffect, useState } from "react"
+import { useUser } from "@/hooks/useUser"
 
 //
 // -------------------------------------------------------------
@@ -64,24 +63,9 @@ export function formatDateDK(date: Date) {
 }
 
 function TableRooms({ rooms, filters, fetchRooms }: TableRoomsProps) {
+  const { user } = useUser()
+  const userId = user?.id ?? null
 
-  // Tilføj state til userId
-  // -------------------------------------------------------------
-  const [userId, setUserId] = useState<string | null>(null)
-
-  // -------------------------------------------------------------
-  // Hent userId fra Supabase via getUser() når komponenten mountes
-  // -------------------------------------------------------------
-  useEffect(() => {
-    async function loadUser() {
-      const user = await getUser()
-      if (user) {
-        setUserId(user.id) // 👈 nu har vi userId til handleConfirmBooking
-      }
-    }
-
-    loadUser()
-  }, [])
   /**
    * -------------------------------------------------------------
    * Åbner modal når brugeren klikker “Book”
