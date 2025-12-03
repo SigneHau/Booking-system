@@ -95,3 +95,4 @@ export default StudentBookingPage
   StudentBookingPage er brugerens “Mine Bookinger”-side, hvor alle
   egne bookinger vises, inkl. mulighed for at annullere dem.
 */
+

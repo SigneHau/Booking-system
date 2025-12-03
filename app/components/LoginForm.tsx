@@ -1,71 +1,65 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button, Container, Paper, PasswordInput, Text, TextInput } from "@mantine/core";
-import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useState } from "react"
+import {
+  Button,
+  Container,
+  Paper,
+  PasswordInput,
+  Text,
+  TextInput,
+} from "@mantine/core"
+import { supabase } from "@/lib/supabaseClient"
+import { useRouter } from "next/navigation"
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
 
     try {
       // Log ind via Supabase
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
       if (loginError || !data.user) {
-        setError("Forkert email eller kodeord");
-        return;
+        setError("Forkert email eller kodeord")
+        return
       }
 
-      const userId = data.user.id;
+      const userId = data.user.id
 
       // Hent brugerprofil fra Supabase
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, role")
         .eq("user_id", userId)
-        .single();
+        .single()
 
       if (profileError || !profile?.role) {
-        setError("Kunne ikke finde din rolle i systemet.");
-        await supabase.auth.signOut();
-        return;
+        setError("Kunne ikke finde din rolle i systemet.")
+        await supabase.auth.signOut()
+        return
       }
 
-      // Gem brugerens navn og email i localStorage til Sidebar
-      localStorage.setItem("userName", profile.full_name);
-      localStorage.setItem("userEmail", email);
-      localStorage.setItem("userRole", profile.role.toLowerCase());
-
-      // Naviger til korrekt dashboard
-      const role = profile.role.toLowerCase();
-      if (role === "student") {
-        router.push("/dashboard/student");
-      } else if (role === "teacher") {
-        router.push("/dashboard/teacher");
-      } else {
-        router.push("/");
-      }
-
+      router.push("/dashboard")
     } catch (err) {
-      console.error(err);
-      setError("Der opstod en fejl under login.");
+      console.error(err)
+      setError("Der opstod en fejl under login.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Container size={420} my={90}>
@@ -90,7 +84,11 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && <Text color="red" mt="sm">{error}</Text>}
+          {error && (
+            <Text color="red" mt="sm">
+              {error}
+            </Text>
+          )}
 
           <Button
             className="mt-10 ml-30"
@@ -111,5 +109,5 @@ export default function LoginForm() {
         </form>
       </Paper>
     </Container>
-  );
+  )
 }

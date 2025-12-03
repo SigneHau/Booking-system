@@ -82,17 +82,6 @@ export default function AuthWrapper({
       }
 
       setLoading(false)
-
-      // 3️⃣ Redirect-logik
-      // Brugeren står på /dashboard men skal sendes det rigtige sted hen
-      const role = profile?.role?.toLowerCase()
-      const isDashboardRoot =
-        pathname === "/dashboard" || pathname === "/dashboard/"
-      if (role === "teacher" && isDashboardRoot) {
-        router.replace("/dashboard/teacher")
-      } else if (role === "student" && isDashboardRoot) {
-        router.replace("/dashboard/student")
-      }
     }
 
     loadUser()

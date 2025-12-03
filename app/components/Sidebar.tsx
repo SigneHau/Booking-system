@@ -1,51 +1,44 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 // Heroicons outline (streg) for navigation ikoner
-import { HiOutlineHome, HiOutlineCalendar, HiOutlineExclamationCircle } from "react-icons/hi";
-import PrimaryButton from "./PrimaryButton";
-import LoadingSpinner from "./LoadingSpinner"; // Loader komponent fra Mantine
-import { usePathname } from "next/navigation";
-
+import {
+  HiOutlineHome,
+  HiOutlineCalendar,
+  HiOutlineExclamationCircle,
+} from "react-icons/hi"
+import PrimaryButton from "./PrimaryButton"
+import LoadingSpinner from "./LoadingSpinner" // Loader komponent fra Mantine
+import { usePathname } from "next/navigation"
 
 // Typing for Sidebar props
 type SidebarProps = {
   user: {
-    name: string;
-    role: string;
-    email: string;
-  } | null;
-};
+    name: string
+    role: string
+    email: string
+  } | null
+}
 
 export default function Sidebar({ user }: SidebarProps) {
   // State til avatar-URL
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("")
 
   // Hent aktuelt URL-path - til den grå baggrund som makere den side du står på i menuen
-  const pathname = usePathname();
+  const pathname = usePathname()
   // useEffect kører, når komponenten mountes eller 'user' ændrer sig
   useEffect(() => {
-    if (!user) return; // Hvis der ikke er nogen bruger, gør vi ingenting
+    if (!user) return // Hvis der ikke er nogen bruger, gør vi ingenting
 
-    // Gemmer avatar per bruger i localStorage, så de får samme billede hver gang
-    const storageKey = `avatarUrl_${user.email}`;
-    const savedAvatar = localStorage.getItem(storageKey);
+    fetch("https://randomuser.me/api/")
+      .then((res) => res.json())
+      .then((data) => {
+        const url = data.results[0].picture.large // Tag billedets URL
 
-    if (savedAvatar) {
-      // Hvis avatar allerede er gemt, brug den
-      setAvatarUrl(savedAvatar);
-    } else {
-      // Ellers hent et nyt tilfældigt billede fra Random User API
-      fetch("https://randomuser.me/api/")
-        .then((res) => res.json())
-        .then((data) => {
-          const url = data.results[0].picture.large; // Tag billedets URL
-          localStorage.setItem(storageKey, url); // Gem i localStorage
-          setAvatarUrl(url); // Opdater state
-        })
-        .catch((err) => console.error("Fejl ved hentning af avatar:", err));
-    }
-  }, [user]); // Effekt kører kun når 'user' ændrer sig
+        setAvatarUrl(url) // Opdater state
+      })
+      .catch((err) => console.error("Fejl ved hentning af avatar:", err))
+  }, [user]) // Effekt kører kun når 'user' ændrer sig
 
   // Hvis bruger-data ikke er tilgængelig endnu, vis loader
   if (!user) {
@@ -55,10 +48,8 @@ export default function Sidebar({ user }: SidebarProps) {
           <LoadingSpinner />
         </div>
       </aside>
-    );
+    )
   }
-
-
 
   return (
     <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
@@ -67,7 +58,9 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* ESLint kommentar for at tillade <img> i Next.js */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-ek.png" alt="Logo" width={80} height={30} />
-        <h1 className="font-heading font-bold text-xl text-black">Booking Lyngby</h1>
+        <h1 className="font-heading font-bold text-xl text-black">
+          Booking Lyngby
+        </h1>
       </div>
 
       {/* Navigation */}
@@ -76,21 +69,21 @@ export default function Sidebar({ user }: SidebarProps) {
           {/* Book lokaler link -Pathname giver den grå baggrund så du kan se hvilken side du står på og user.role kigger på hvilken rolle er du så du sendes til det rigtige side om du lærer eller student */}
           <li
             className={`flex items-center mt-5 gap-3 p-2 rounded cursor-pointer 
-            ${pathname.startsWith(`/dashboard/${user.role}`) ? "bg-gray-100" : ""}`}
+            ${pathname.startsWith(`/dashboard`) ? "bg-gray-100" : ""}`}
           >
             {/* Heroicon-icon outline, blå baggrund */}
             <HiOutlineHome className="bg-blue-100 rounded text-3xl p-1 text-blue-500" />
-            <a href={`/dashboard/${user.role}`}>Book lokaler</a>
+            <a href={`/dashboard`}>Book lokaler</a>
           </li>
 
           {/* Mine bookinger link - pathname - giver grå baggrund så du kan se du er på denne side */}
           <li
             className={`flex items-center gap-3 p-2 rounded cursor-pointer 
-            ${pathname.startsWith(`/bookings/${user.role}`) ? "bg-gray-100" : ""}`}
+            ${pathname.startsWith(`/bookings`) ? "bg-gray-100" : ""}`}
           >
             {/* Heroicon - icon outline, grøn baggrund */}
             <HiOutlineCalendar className="bg-green-100 rounded text-3xl p-1 text-green-500" />
-            <a href={`/bookings/${user.role}`}>Mine bookinger</a>
+            <a href={`/bookings/`}>Mine bookinger</a>
           </li>
 
           {/* Hjælp link - pathname - giver grå baggrund så du kan se du er på denne side */}
@@ -131,8 +124,8 @@ export default function Sidebar({ user }: SidebarProps) {
           </div>
         </div>
       </div>
-    </aside >
-  );
+    </aside>
+  )
 }
 
 /* 
