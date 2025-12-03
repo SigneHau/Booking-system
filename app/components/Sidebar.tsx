@@ -7,41 +7,12 @@ import {
   HiOutlineCalendar,
   HiOutlineExclamationCircle,
 } from "react-icons/hi"
-import PrimaryButton from "./PrimaryButton"
-import LoadingSpinner from "./LoadingSpinner" // Loader komponent fra Mantine
 import { usePathname } from "next/navigation"
-import { useUser } from "@/hooks/useUser"
+import UserProfile from "./UserProfile"
 
 export default function Sidebar() {
-  const { user, loading } = useUser()
-  const [avatarUrl, setAvatarUrl] = useState<string>("")
-
   // Hent aktuelt URL-path - til den grå baggrund som makere den side du står på i menuen
   const pathname = usePathname()
-  // useEffect kører, når komponenten mountes eller 'user' ændrer sig
-  useEffect(() => {
-    if (!user) return // Hvis der ikke er nogen bruger, gør vi ingenting
-
-    fetch("https://randomuser.me/api/")
-      .then((res) => res.json())
-      .then((data) => {
-       const url = data.results[0].picture.large // Tag billedets URL
-
-        setAvatarUrl(url) // Opdater state
-      })
-      .catch((err) => console.error("Fejl ved hentning af avatar:", err))
- }, [user]) // Effekt kører kun når 'user' ændrer sig
-
-  // Hvis bruger-data ikke er tilgængelig endnu, vis loader
-  if (loading || !user) {
-    return (
-      <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
-        <div className="mt-20">
-          <LoadingSpinner />
-        </div>
-      </aside>
-    )
-  }
 
   return (
     <aside className="bg-amber-50 flex flex-col items-center w-76 p-4">
@@ -91,30 +62,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Bruger-info nederst */}
-      <div className="mt-6 flex flex-col border-t p-2 border-gray-200">
-        <div className="flex items-center gap-8 w-full p-3 rounded">
-          {/* Avatar */}
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="Avatar" className="w-25 h-25 rounded" />
-          ) : (
-            <div className="w-16 h-16 bg-gray-300" /> // fallback placeholder
-          )}
-
-          {/* Brugerens info */}
-          <div className="flex flex-col">
-            {/* Navn */}
-            <p className="font-heading text-base font-bold">{user.full_name}</p>
-            {/* Rolle med stort begyndelsesbogstav */}
-            <p className="text-sm opacity-90">
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-            </p>
-            {/* Email */}
-            <p className="text-sm opacity-70 mb-6">{user.email}</p>
-
-            {/* Log ud knap */}
-            <PrimaryButton text="Log ud" action="logout" />
-          </div>
-        </div>
+      <div className="mt-6 flex flex-col border-t p-2 border-gray-200 w-full">
+        <UserProfile />
       </div>
     </aside>
   )
