@@ -10,19 +10,37 @@ import {
 import PrimaryButton from "./PrimaryButton"
 import LoadingSpinner from "./LoadingSpinner" // Loader komponent fra Mantine
 import { usePathname } from "next/navigation"
+import { getUser } from "@/lib/auth"
 
-// Typing for Sidebar props
-type SidebarProps = {
-  user: {
-    name: string
-    role: string
-    email: string
-  } | null
-}
 
-export default function Sidebar({ user }: SidebarProps) {
+
+
+export default function Sidebar() {
+
+ const [user, setUser] = useState<{
+  full_name: string
+  email: string
+  role: string
+} | null>(null)
   // State til avatar-URL
   const [avatarUrl, setAvatarUrl] = useState<string>("")
+
+
+  //Todo: 
+  //tag funktione med cla til supabase med brugerdata
+   // Hent brugerprofil fra Supabase
+    // Hent brugerprofil fra Supabase
+
+
+  useEffect(() => {
+  async function load() {
+    const userData = await getUser()
+    setUser(userData)
+  }
+  load()
+}, [])
+
+        
 
   // Hent aktuelt URL-path - til den grå baggrund som makere den side du står på i menuen
   const pathname = usePathname()
@@ -111,7 +129,7 @@ export default function Sidebar({ user }: SidebarProps) {
           {/* Brugerens info */}
           <div className="flex flex-col">
             {/* Navn */}
-            <p className="font-heading text-base font-bold">{user.name}</p>
+            <p className="font-heading text-base font-bold">{user.full_name}</p>
             {/* Rolle med stort begyndelsesbogstav */}
             <p className="text-sm opacity-90">
               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}

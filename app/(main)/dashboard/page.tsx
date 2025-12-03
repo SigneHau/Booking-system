@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react"
 import FilterCard from "../../components/FilterCard"
 import AvailableRoomsCard from "../../components/AvailableRoomsCard"
-import { supabase } from "@/lib/supabaseClient"
 import RoleBadge from "@/app/components/RoleBadge"
-import { useUser } from "@/app/contexts/UserContext"
+import { getUser } from "@/lib/auth" // 👈 hent getUser
+import { supabase } from "@/lib/supabaseClient"
 
 // Filters fortæller hvilke kriterier brugeren har valgt
 type Filters = {
@@ -16,12 +16,17 @@ type Filters = {
   role: "student" | "teacher"
 }
 
-export default function TeacherDashboard() {
-  const user = useUser()
+export default function Dashboard() {
+  // -------------------------------------------
+  // STATE: bruger + filtre
+  // -------------------------------------------
+  const [user, setUser] = useState<{
+    id: string
+    email: string
+    full_name: string
+    role: "student" | "teacher"
+  } | null>(null)
 
-  // -------------------------------------------
-  // STATE: alle filtre læreren kan vælge
-  // -------------------------------------------
   const [filters, setFilters] = useState<Filters>({
     floor: null,
     date: null,
@@ -33,7 +38,20 @@ export default function TeacherDashboard() {
   const [rooms, setRooms] = useState<any[]>([])
 
   // -------------------------------------------------------------
-  // 1️⃣  FLYTTET HEROP → så den bruges før useEffect
+  // 1️⃣ HENT BRUGER NÅR COMPONENT MOUNTES
+  // -------------------------------------------------------------
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getUser()
+      if (currentUser) {
+        setUser(currentUser)
+      }
+    }
+    loadUser()
+  }, [])
+
+  // -------------------------------------------------------------
+  // 2️⃣ FLYTTET HEROP → så den bruges før useEffect
   // -------------------------------------------------------------
   async function fetchRooms() {
     const { floor, date, from, to } = filters
@@ -86,7 +104,7 @@ export default function TeacherDashboard() {
   }
 
   // -------------------------------------------------------------
-  // 2️⃣  Når filtre ændres → hent lokaler
+  // 3️⃣ Når filtre ændres → hent lokaler
   // -------------------------------------------------------------
   useEffect(() => {
     if (filters.floor && filters.date) {
@@ -101,6 +119,7 @@ export default function TeacherDashboard() {
     <div>
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Book et lokale</h1>
+        {/* ⚡️ vis brugerens rolle */}
         <RoleBadge role={user?.role ?? "unknown"} />
       </div>
 
@@ -108,7 +127,7 @@ export default function TeacherDashboard() {
 
       <AvailableRoomsCard
         rooms={rooms}
-        userId={user?.id ?? null}
+        userId={user?.id ?? null} // 👈 send userId til TableRooms
         filters={filters}
         fetchRooms={fetchRooms}
       />

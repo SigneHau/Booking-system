@@ -1,14 +1,16 @@
 "use client"
-// FilterCard - bruger UserContext (useUser) i stedet for at hente role fra Supabase.
-// Sender { floor, date, from, to, role } op til parent via setFilters.
+
+// FilterCard - bruger nu getUser() fra auth i stedet for context
+// Sender { floor, date, from, to, role } op til parent via setFilters
 
 import { Text, Paper, Grid } from "@mantine/core"
 import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
-import { useUser } from "@/app/contexts/UserContext"
+
 import { supabase } from "@/lib/supabaseClient"
+import { getUser } from "@/lib/auth"
 
 // Eksporteret type så Dashboards kan importere den
 export type Filters = {
@@ -23,12 +25,33 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   // Liste af etager hentet fra databasen (kun relevant for lærere)
   const [floors, setFloors] = useState<number[]>([])
 
-  // Henter brugerinfo (inkl. role) fra UserContext
-  const user = useUser()
+  // -------------------------------------------------------------
+  // Tilføj state til user (fra Supabase/auth)
+  // -------------------------------------------------------------
+  const [user, setUser] = useState<{
+    id: string
+    full_name: string
+    email: string
+    role: "student" | "teacher"
+  } | null>(null)
+
+  // -------------------------------------------------------------
+  // Hent user fra Supabase via getUser() når komponenten mountes
+  // -------------------------------------------------------------
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getUser()
+      if (currentUser) {
+        setUser(currentUser) // gem hele brugeren
+      }
+    }
+
+    loadUser()
+  }, [])
 
   // Hvis user ikke er klar endnu → default til student
-  const userRole: "student" | "teacher" =
-    user?.role === "teacher" ? "teacher" : "student"
+  const userRole: "student" | "teacher" = user?.role === "teacher" ? "teacher" : "student"
+  const userId = user?.id ?? null // Kan bruges i handleConfirmBooking
 
   // Lokalt filter-state
   const [floor, setFloor] = useState<number | null>(null)
@@ -84,8 +107,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   //    - Student: 14 dage frem
   //    - Teacher: 6 måneder frem
   // -----------------------------------------------------------
-  let maxDate
-
+  let maxDate: Date
   if (userRole === "student") {
     maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
   } else {
@@ -143,14 +165,17 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
 export default FilterCard
 
 // -----------------------------------------------------------
-// Hvad jeg har gjort i FilterCard (kort og klart):
+// Kommentarer om rettelserne:
 // -----------------------------------------------------------
 //
-// ✔ Bruger nu useUser() fra context til at få rollen (ingen ekstra Supabase-kald)
+// ✔ Fjernet context – bruger nu getUser() fra auth.ts
 //
-// ✔ Fjernet async-kald for at hente rolle — den er stabil fra context
+// ✔ Tilføjet user state med id, email, full_name og role
 //
-// ✔ Bruger floors.length i useEffect-deps (Afhængighed) for at undgå at React brokker sig
+// ✔ userRole beregnes nu ud fra den hentede user
 //
-// ✔ Sender role direkte med i setFilters, så parent får en stabil og korrekt værdi
+// ✔ userId kan bruges til bookings (handleConfirmBooking)
 //
+// ✔ Alle filtre sendes stadig op via setFilters
+//
+// ✔ TypeScript er tilfreds, ingen fejl på user.role eller userId

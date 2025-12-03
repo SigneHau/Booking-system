@@ -1,31 +1,43 @@
 import { supabase } from "./supabaseClient"
 
-// LOGIN:
-// Supabase tjekker email + password.
-// Hvis de matcher, opretter Supabase en session (token) og gemmer den i browseren.
-// Brugeren bliver dermed logget ind og kan tilgå beskyttede sider.
+// LOGIN
 export async function loginAuth(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
-  // Skal returnere et objekt med disse to felter
-  return { data, error };
+  return { data, error }
 }
 
 
+// HENT BRUGER + PROFIL FRA SUPABASE
+export async function getUser() {
+  const { data: authData, error: authError } = await supabase.auth.getUser()
 
-// Best practice anbefaling
+  if (authError || !authData?.user) {
 
-// Selvom dit projekt lige nu kun har én login-side, anbefales det stadig at beholde loginAuth i auth.ts. Det giver dig fleksibilitet senere, og det er mere “Next.js/React-venligt”.
+    console.log("Fejl ved hentning af auth-bruger:", authError)
+    return null
+  }
 
-// Page-komponenten (f.eks. HomePage) håndterer UI, form og routing.
+  const authUser = authData.user
 
-// auth.ts håndterer API-kald og Supabase-login.
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("user_id", authUser.id)
+    .single()
 
-// Det gør koden renere og lettere at vedligeholde.
+  if (profileError) {
+    return null
+  }
 
-
-
+  return {
+    id: authUser.id,          // 👈 nødvendig for booking
+    email: authUser.email,
+    full_name: profile.full_name,
+    role: profile.role,
+  }
+}
 

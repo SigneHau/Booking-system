@@ -5,7 +5,9 @@ import "@mantine/dates/styles.css";
 
 
 import { Open_Sans } from "next/font/google";
-import Providers from "./Providers";
+
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 
 const openSans = Open_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -14,7 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="da" className={openSans.className}>
       <body>
         
-         <Providers>{children}</Providers>
+         {/* // Wrap hele appen i Mantine + Modals systemet */}
+    <MantineProvider>
+      <ModalsProvider>{children}</ModalsProvider>
+    </MantineProvider>
       </body>
     </html>
   );
