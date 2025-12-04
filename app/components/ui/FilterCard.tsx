@@ -21,7 +21,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   const [floors, setFloors] = useState<number[]>([])
 
   const [floor, setFloor] = useState<number | null>(null)
-  const [date, setDate] = useState<Date | null>(null)
+  const [date, setDate] = useState<Date | null>(new Date())
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 

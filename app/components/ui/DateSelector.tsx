@@ -14,19 +14,20 @@ function DateSelector({ value, onChange, maxDate }: DateSelectorProps) {
   return (
     <DateInput
       className="text-gray-400"
-      label="Vælg den ønskede dato" // Tekst over inputfeltet
-      placeholder="Vælg dato" // Tekst inde i feltet før valg
-      value={value} // Den valgte dato (kommer fra FilterCard)
-      maxDate={maxDate} // Begrænser dato-valg afhængigt af rolle
-      valueFormat="DD/MM/YYYY" // Formatet som datoen vises i
-      // Mantine giver en STRING når brugeren vælger en dato.
-      // FilterCard forventer en DATE → derfor laver vi konvertering her.
+      label="Vælg den ønskede dato"
+      placeholder="Vælg dato"
+      value={value ?? new Date()} // fallback til dags dato
+      minDate={new Date()}        // kan ikke vælge dage før i dag
+      maxDate={maxDate}           // maks baseret på rolle
+      valueFormat="DD/MM/YYYY"
       onChange={(val) => {
-        if (!val) return onChange(null) // Hvis brugeren sletter datoen → send null tilbage
-        onChange(new Date(val)) // Ellers: lav string om til en Date og send tilbage
+        if (!val) return onChange(null)
+        onChange(new Date(val))
       }}
     />
   )
 }
+
+
 
 export default DateSelector
