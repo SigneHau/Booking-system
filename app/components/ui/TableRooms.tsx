@@ -5,13 +5,19 @@ import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "../ui/BookingContentModal"
 import ModalButtons from "../ui/ModalButtons"
-import { useUser, type User } from "@/hooks/useUser"
+import { type User } from "@/hooks/useUser"
 import { createBooking } from "@/lib/booking"
-import { formatDateDK } from "@/lib/formatDate" // <-- Import fra lib
+import { formatDateDK } from "@/lib/formatDate"
 
 // -------------------------------------------------------------
 // Typedefs – struktur for data
 // -------------------------------------------------------------
+type Booking = {
+  id: number
+  starting_at: string
+  ending_at: string
+}
+
 type Room = {
   id: number
   roomid: string
@@ -20,7 +26,7 @@ type Room = {
   floor: number
   availability: string
   booked: boolean
-  bookings: any[] // alle bookinger for dagen (fra database)
+  bookings: Booking[]
 }
 
 type Filters = {
@@ -33,13 +39,13 @@ type Filters = {
 
 type TableRoomsProps = {
   rooms: Room[]
+  userId: string | null
   filters: Filters
   fetchRooms: () => Promise<void>
 }
 
-function TableRooms({ rooms, filters, fetchRooms }: TableRoomsProps) {
-  const { user } = useUser()
-  const userId = user?.id ?? null
+function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps): JSX.Element {
+  if (!userId) console.warn("Ingen userId – er brugeren logget ind?")
 
   // -------------------------------------------------------------
   // Åbner modal når brugeren klikker “Book”
@@ -93,10 +99,10 @@ function TableRooms({ rooms, filters, fetchRooms }: TableRoomsProps) {
   }
 
   // -------------------------------------------------------------
-  // Sender booking-data til Supabase via lib/booking.ts
+  // Sender booking-data til Supabase
   // -------------------------------------------------------------
   async function handleConfirmBooking(room: Room) {
-    if (!userId) return console.error("Ingen userId – er brugeren logget ind?")
+    if (!userId) return
     const { date, from, to } = filters
     if (!date || !from || !to) return console.error("Manglende filterværdier (date/from/to)")
 
@@ -105,8 +111,12 @@ function TableRooms({ rooms, filters, fetchRooms }: TableRoomsProps) {
       await fetchRooms()
       modals.closeAll()
       console.log("✅ Booking oprettet")
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message)
+      } else {
+        alert("Der opstod en ukendt fejl")
+      }
     }
   }
 
@@ -119,8 +129,8 @@ function TableRooms({ rooms, filters, fetchRooms }: TableRoomsProps) {
       <Table.Td>{room.roomsize} personer</Table.Td>
       <Table.Td>{room.availability}</Table.Td>
       <Table.Td className="space-y-1">
-        {room.bookings && room.bookings.length > 0 ? (
-          room.bookings.map((b: any) => {
+        {room.bookings.length > 0 ? (
+          room.bookings.map((b) => {
             const start = b.starting_at.slice(11, 16)
             const end = b.ending_at.slice(11, 16)
             return (
