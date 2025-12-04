@@ -5,8 +5,8 @@ import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
-import { supabase } from "@/lib/supabaseClient"
 import { useUser, type User } from "@/hooks/useUser"
+import { getFloors } from "@/lib/booking"
 
 export type Filters = {
   floor: number | null
@@ -18,29 +18,21 @@ export type Filters = {
 
 function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   const { user, isStudent, isTeacher } = useUser()
-  // Liste af etager hentet fra databasen (kun relevant for lærere)
   const [floors, setFloors] = useState<number[]>([])
 
-  // Lokalt filter-state
   const [floor, setFloor] = useState<number | null>(null)
   const [date, setDate] = useState<Date | null>(null)
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 
   // -----------------------------------------------------------
-  // 1) Hent alle etager (kun én gang)
+  // 1) Hent alle etager fra booking.ts (UI taler ikke direkte med Supabase)
   // -----------------------------------------------------------
   useEffect(() => {
     async function loadFloors() {
-      const { data, error } = await supabase
-        .from("meetingrooms")
-        .select("floor")
-        .order("floor", { ascending: true })
-
-      if (error || !data) return
-      setFloors([...new Set(data.map((f) => f.floor))])
+      const result = await getFloors()
+      setFloors(result)
     }
-
     loadFloors()
   }, [])
 
@@ -49,8 +41,8 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   // -----------------------------------------------------------
   useEffect(() => {
     if (isStudent) {
-      setFloors([3]) // Studerende må kun se etage 3
-      setFloor(3) // Og kan kun vælge 3
+      setFloors([3])
+      setFloor(3)
     }
   }, [isStudent])
 
@@ -59,7 +51,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   // -----------------------------------------------------------
   useEffect(() => {
     if (isTeacher && floors.length > 0 && floor === null) {
-      setFloor(floors[0]) // Første etage i listen
+      setFloor(floors[0])
     }
   }, [isTeacher, floors.length, floor])
 
@@ -71,9 +63,7 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   }, [floor, date, from, to, user, setFilters])
 
   // -----------------------------------------------------------
-  // 5) maxDate afhænger af rollen:
-  //    - Student: 14 dage frem
-  //    - Teacher: 6 måneder frem
+  // 5) maxDate afhænger af rollen
   // -----------------------------------------------------------
   let maxDate: Date
   if (isStudent) {
@@ -92,12 +82,11 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
           <Text size="sm" fw={500} mb={4}>
             Etage
           </Text>
-
           <FloorSelector
             floors={floors}
             value={floor}
             onChange={setFloor}
-            disabled={isStudent} // Studerende kan ikke ændre
+            disabled={isStudent}
           />
         </Grid.Col>
 
@@ -106,7 +95,6 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
           <Text size="sm" fw={500} mb={4}>
             Dato
           </Text>
-
           <DateSelector value={date} onChange={setDate} maxDate={maxDate} />
         </Grid.Col>
 
@@ -131,19 +119,3 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
 }
 
 export default FilterCard
-
-// -----------------------------------------------------------
-// Kommentarer om rettelserne:
-// -----------------------------------------------------------
-//
-// ✔ Fjernet context – bruger nu getUser() fra auth.ts
-//
-// ✔ Tilføjet user state med id, email, full_name og role
-//
-// ✔ userRole beregnes nu ud fra den hentede user
-//
-// ✔ userId kan bruges til bookings (handleConfirmBooking)
-//
-// ✔ Alle filtre sendes stadig op via setFilters
-//
-// ✔ TypeScript er tilfreds, ingen fejl på user.role eller userId

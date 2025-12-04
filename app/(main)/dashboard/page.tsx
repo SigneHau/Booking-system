@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import FilterCard from "../../components/FilterCard"
-import AvailableRoomsCard from "../../components/AvailableRoomsCard"
-import RoleBadge from "@/app/components/RoleBadge"
+import FilterCard from "../../components/ui/FilterCard"
+import AvailableRoomsCard from "../../components/ui/AvailableRoomsCard"
+import RoleBadge from "@/app/components/ui/RoleBadge"
 import { useUser, type User } from "@/hooks/useUser"
 import { supabase } from "@/lib/supabaseClient"
 

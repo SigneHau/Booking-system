@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+
 // Heroicons outline (streg) for navigation ikoner
 import {
   HiOutlineHome,

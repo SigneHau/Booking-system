@@ -1,7 +1,6 @@
-// lib/auth.ts
 import { supabase } from "./supabaseClient"
 
-// LOGIN
+// LOGIN med email og password
 export async function loginAuth(email: string, password: string) {
   return await supabase.auth.signInWithPassword({
     email,
@@ -9,7 +8,7 @@ export async function loginAuth(email: string, password: string) {
   })
 }
 
-// LOGOUT
+// LOGOUT – brugt af PrimaryButton
 export async function logoutAuth() {
   return await supabase.auth.signOut()
 }
@@ -17,7 +16,6 @@ export async function logoutAuth() {
 // HENT AKTIV BRUGER + PROFIL
 export async function getUser() {
   const { data: authData, error: authError } = await supabase.auth.getUser()
-
   if (authError || !authData?.user) return null
 
   const user = authData.user

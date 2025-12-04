@@ -3,7 +3,7 @@ import { Text, Stack } from "@mantine/core"
 //
 // -------------------------------------------------------------
 // Props til modal-komponenten
-// (det som TableRooms sender ind i modalet)
+// (TableRooms sender disse værdier ind i modalet)
 // -------------------------------------------------------------
 //
 type BookingContentModalProps = {
@@ -21,14 +21,14 @@ type BookingContentModalProps = {
 // -------------------------------------------------------------
 //
 const formatTime = (timeStr: string) => {
-  if (!timeStr) return "" // beskyttelse hvis der mangler data
-  return timeStr.slice(0, 5) // behold kun “HH:MM”
+  if (!timeStr) return ""
+  return timeStr.slice(0, 5)
 }
 
 //
 // -------------------------------------------------------------
-// Selve modal-komponenten som viser booking-info
-// Bruges inde i TableRooms → modals.open(...)
+// Modal-komponenten der viser booking-information.
+// Bruges i TableRooms via modals.open(...)
 // -------------------------------------------------------------
 //
 const BookingContentModal = ({
@@ -39,28 +39,23 @@ const BookingContentModal = ({
   timeTo,
 }: BookingContentModalProps) => {
   return (
-    // Mantine <Stack> giver flot vertikal spacing mellem elementerne
+    // <Stack> giver automatisk pæn vertikal afstand mellem emner
     <Stack gap="xs">
-      {/* Vis valgt etage */}
       <Text>
         <strong>Etage:</strong> {floor}
       </Text>
 
-      {/* Vis lokale-id */}
       <Text>
         <strong>Lokale:</strong> {room}
       </Text>
 
-      {/* Datoen er allerede formateret i TableRooms (DD-MM-YYYY)
-        Derfor SKAL vi ikke formatere den igen.
-      */}
+      {/* Dato er allerede formateret i TableRooms (DD-MM-YYYY) */}
       <Text>
         <strong>Dato:</strong> {date}
       </Text>
 
-      {/* Vis det valgte tidsinterval, pænt formateret */}
       <Text>
-        <strong>Tidspunkt:</strong> {formatTime(timeFrom)} -{" "}
+        <strong>Tidspunkt:</strong> {formatTime(timeFrom)} –{" "}
         {formatTime(timeTo)}
       </Text>
     </Stack>
@@ -72,8 +67,8 @@ export default BookingContentModal
 /*
   Hvad gør komponentet “BookingContentModal”?
 
-  Komponenten viser en simpel, overskuelig opsummering af en booking i et modal.
-  Den modtager etage, lokale, dato og tidsrum som props, formaterer tiden pænt
-  og præsenterer informationen i en vertikal liste via Mantines <Stack>.
-  Bruges typisk inde i modalet, når brugeren skal bekræfte en booking.
+  Komponenten viser en kort opsummering af en booking i et modal.
+  Den modtager etage, lokale, dato og tidsrum som props, formaterer tiden,
+  og præsenterer informationen i en simpel vertikal liste via <Stack>.
+  Bruges når brugeren skal se detaljer og bekræfte en booking.
 */

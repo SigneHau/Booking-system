@@ -4,7 +4,7 @@ import { useUser } from "@/hooks/useUser"
 const getRoleLabel = (role?: string) => {
   switch (role) {
     case "Student":
-      return "elev"
+      return "studerende"
     case "Teacher":
       return "lærer"
     default:

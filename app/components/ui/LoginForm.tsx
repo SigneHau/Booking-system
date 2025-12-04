@@ -42,7 +42,6 @@ export default function LoginForm() {
       setLoading(false)
       return
     }
-
     // 3) SEND VIDERE
     router.push("/dashboard")
     setLoading(false)

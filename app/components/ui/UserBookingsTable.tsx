@@ -6,7 +6,8 @@ import { IconAlertCircle } from "@tabler/icons-react"
 import { supabase } from "@/lib/supabaseClient"
 import ModalButtons from "./ModalButtons"
 import BookingContentModal from "./BookingContentModal"
-import { formatDateDK } from "./TableRooms"
+import { formatDateDK } from "@/lib/formatDate"
+
 
 //
 // -------------------------------------------------------------

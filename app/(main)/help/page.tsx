@@ -1,6 +1,6 @@
 "use client"
 
-import RoleBadge from "@/app/components/RoleBadge"
+import RoleBadge from "@/app/components/ui/RoleBadge"
 
 export default function HelpPage() {
   return (
