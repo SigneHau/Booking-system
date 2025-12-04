@@ -118,4 +118,5 @@ function FilterCard({ setFilters }: { setFilters: (f: Filters) => void }) {
   )
 }
 
+
 export default FilterCard
