@@ -44,7 +44,7 @@ type TableRoomsProps = {
   fetchRooms: () => Promise<void>
 }
 
-function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps): JSX.Element {
+function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
   if (!userId) console.warn("Ingen userId – er brugeren logget ind?")
 
   // -------------------------------------------------------------
