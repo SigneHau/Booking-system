@@ -9,8 +9,9 @@ import {
   Text,
   TextInput,
 } from "@mantine/core"
-import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
+
+import { loginAuth, getUser } from "@/lib/auth"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -24,46 +25,32 @@ export default function LoginForm() {
     setError(null)
     setLoading(true)
 
-    try {
-      // Log ind via Supabase
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+    // 1) LOGIN
+    const { data, error: loginError } = await loginAuth(email, password)
 
-      if (loginError || !data.user) {
-        setError("Forkert email eller kodeord")
-        return
-      }
-
-      const userId = data.user.id
-
-      // Hent brugerprofil fra Supabase
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("full_name, role")
-        .eq("user_id", userId)
-        .single()
-
-      if (profileError || !profile?.role) {
-        setError("Kunne ikke finde din rolle i systemet.")
-        await supabase.auth.signOut()
-        return
-      }
-
-      router.push("/dashboard")
-    } catch (err) {
-      console.error(err)
-      setError("Der opstod en fejl under login.")
-    } finally {
+    if (loginError || !data.user) {
+      setError("Forkert email eller adgangskode")
       setLoading(false)
+      return
     }
+
+    // 2) HENT PROFIL
+    const user = await getUser()
+
+    if (!user?.role) {
+      setError("Kunne ikke finde din brugerrolle.")
+      setLoading(false)
+      return
+    }
+
+    // 3) SEND VIDERE
+    router.push("/dashboard")
+    setLoading(false)
   }
 
   return (
     <Container size={420} my={90}>
-      <Paper p={0} radius="sm" className=" w-[300px]">
+      <Paper p={0} radius="sm" className="w-[300px]">
         <form onSubmit={handleSubmit}>
           <TextInput
             label="E-mail"

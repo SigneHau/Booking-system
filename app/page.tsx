@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import LoginForm from "@/app/components/LoginForm"  // ⬅️ VIGTIGT: vi bruger nu dit komponent
+import LoginForm from "@/app/components/ui/LoginForm"  // ⬅️ VIGTIGT: vi bruger nu dit komponent
 
 export default function HomePage() {
   return (

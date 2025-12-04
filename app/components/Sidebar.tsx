@@ -78,9 +78,7 @@ Kommentarer om koden generelt:
    - Bruger-info nederst (avatar, navn, rolle, email)
    - Log ud-knap
 
-2. Avatar hentes fra Random User API:
-   - Gemmes per bruger i localStorage
-   - Bevares ved navigation mellem sider
+
 
 3. Ikoner:
    - Alle er Heroicons outline for ens streg-stil
