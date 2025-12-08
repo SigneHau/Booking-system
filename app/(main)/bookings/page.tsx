@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { Paper } from "@mantine/core"
 import { supabase } from "@/lib/supabaseClient"
 import { useUser } from "@/hooks/useUser"
-import RoleBadge from "@/app/components/ui/RoleBadge"
-import UserBookingsTable from "@/app/components/ui/UserBookingsTable"
+import RoleBadge from "@/app/components/RoleBadge"
+import UserBookingsTable from "@/app/components/UserBookingsTable"
 
 const BookingPage = () => {
   const { user } = useUser()
