@@ -110,12 +110,13 @@ export default function UserBookingsTable({
             })}
           />
 
-          {/* Reusable button component */}
+          {/* Reusable button component
+          Efter UX-test - er farverne på knapperne byttet om på knapperne  */}
           <ModalButtons
             buttons={[
               {
                 label: "Ja",
-                color: "blue",
+                color: "red",
                 action: () => {
                   deleteBooking(b.id)
                   modals.closeAll()
@@ -123,7 +124,7 @@ export default function UserBookingsTable({
               },
               {
                 label: "Nej",
-                color: "red",
+                color: "blue",
                 action: () => modals.closeAll(),
               },
             ]}

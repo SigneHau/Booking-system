@@ -49,6 +49,10 @@ function TimeSelector({ value, onChange }: TimeSelectorProps) {
       }}
       label="Vælg det ønskede tidspunkt"
       leftSection={pickerControl}
+
+            // gør hele inputfeltet klikbart - tilføjet efter UX-testen
+      onFocus={() => setDropdownOpened(true)} 
+      // ----------------------------------
       // -----------------------------------------------------------------------
       // popoverProps styrer den dropdown, der åbner ved valg af tidspunkt
       // opened: styrer om dropdownen er åben
