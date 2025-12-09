@@ -1,12 +1,13 @@
 "use client"
 
-import { Stack, Table, Text } from "@mantine/core"
+
+import { Table } from "@mantine/core"
 import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
-import { supabase } from "@/lib/supabaseClient"
 import ModalButtons from "./ModalButtons"
 import BookingContentModal from "./BookingContentModal"
 import { formatDateDK } from "@/lib/formatDate"
+import { deleteBooking } from "@/lib/booking"
 
 
 //
@@ -36,6 +37,7 @@ export default function UserBookingsTable({
   refresh: () => void
 }) {
   console.log("🚀 ~ UserBookingsTable ~ bookings:", bookings)
+
   //
   // -------------------------------------------------------------
   // Helper: formatér klokkeslæt "2025-11-20T08:00:00" → "08:00"
@@ -43,23 +45,6 @@ export default function UserBookingsTable({
   //
   const time = (t: string) => t.slice(11, 16)
 
-  //
-  // -------------------------------------------------------------
-  // 1️⃣ SLET booking i Supabase
-  // -------------------------------------------------------------
-  //
-  async function deleteBooking(id: number) {
-    const { error } = await supabase.from("bookings").delete().eq("id", id)
-
-    if (error) {
-      alert("Kunne ikke annullere booking.")
-      return
-    }
-
-    refresh() // hent listen igen
-  }
-
-  //
   // -------------------------------------------------------------
   // 2️⃣ Åbner modal
   // -------------------------------------------------------------
@@ -117,9 +102,15 @@ export default function UserBookingsTable({
               {
                 label: "Ja",
                 color: "red",
-                action: () => {
-                  deleteBooking(b.id)
-                  modals.closeAll()
+                action: async () => {
+                  // ✔️ HER bruger vi deleteBooking fra /lib/bookings
+                  try {
+                    await deleteBooking(b.id)
+                    refresh()
+                    modals.closeAll()
+                  } catch (err: any) {
+                    alert(err.message)
+                  }
                 },
               },
               {
