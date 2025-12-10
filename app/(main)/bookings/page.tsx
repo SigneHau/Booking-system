@@ -22,7 +22,7 @@ const BookingPage = () => {
       .from("bookings")
       .select("*")
       .eq("created_by", user.id) // filtrér på bruger-id
-      .order("date", { ascending: true })
+      .order("starting_at", { ascending: false }) // Efter UX-TEST - Nyeste booking først - derfor bruger vi starting_at
 
     const { data: roomsData } = await supabase.from("meetingrooms").select("*")
 

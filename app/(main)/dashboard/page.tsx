@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [rooms, setRooms] = useState<any[]>([])
 
   // -------------------------------------------------------------
-  // 2️⃣ FLYTTET HEROP → så den bruges før useEffect
+  // så den bruges før useEffect
   // -------------------------------------------------------------
   async function fetchRooms() {
     const { floor, date, from, to } = filters

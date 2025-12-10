@@ -130,8 +130,12 @@ export default function UserBookingsTable({
   // 3️⃣ Generér tabel-rækker
   // -------------------------------------------------------------
   //
-  const rows = bookings.map((b) => (
-    <Table.Tr key={b.id}>
+  const rows = bookings.map((b, index) => (
+    <Table.Tr
+     key={b.id}
+       // EFTER UX_TEST: Fremhæv den første række (den nyeste booking )
+       className={index === 0 ? "!bg-blue-50/70 border-l-4 border-blue-500" : ""}
+      >
       {/* Lokale navn */}
       <Table.Td>{b.roomName}</Table.Td>
 
