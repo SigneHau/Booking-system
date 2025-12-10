@@ -21,6 +21,10 @@ export default function Dashboard() {
   // -------------------------------------------
   const { user, isStudent } = useUser()
 
+  // EFTER UX TEST - STATE: til loadingspinner
+
+  const [loadingSpinner, setLoadingSpinner] = useState(false)
+
   const [filters, setFilters] = useState<Filters>({
     floor: null,
     date: null,
@@ -38,6 +42,8 @@ export default function Dashboard() {
     const { floor, date, from, to } = filters
     
     if (!floor || !date || !from || !to) return
+
+    setLoadingSpinner(true) // <-- START LOADING
 
     const dateStr = date.toISOString().split("T")[0]
 
@@ -87,6 +93,7 @@ export default function Dashboard() {
     }
 
     setRooms(results)
+    setLoadingSpinner(false) // <-- STOP LOADING
   }
 
   // -------------------------------------------------------------
@@ -109,7 +116,7 @@ export default function Dashboard() {
         <RoleBadge />
       </div>
 
-      <FilterCard setFilters={setFilters} />
+      <FilterCard setFilters={setFilters} loadingSpinner={loadingSpinner} />
 
       <AvailableRoomsCard
         rooms={rooms}
