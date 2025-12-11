@@ -6,24 +6,24 @@ import PrimaryButton from "./PrimaryButton";
 import { useUser } from "@/hooks/useUser";
 
 export default function UserProfile() {
-  const { user, loading } = useUser();
+  const { user, loading } = useUser(); // et custom hook, der henter den aktuelle bruger og en loading-state.
   const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   useEffect(() => {
     if (!user) return; // Hvis der ikke er nogen bruger, gør vi ingenting
 
-    const seed = encodeURIComponent(user.id); // Stabil ID → stabil avatar
+    const seed = encodeURIComponent(user.id); // / bruger id som seed, så samme bruger får samme avatar
 
     fetch(`https://randomuser.me/api/?seed=${seed}`)
       .then((res) => res.json())
       .then((data) => {
-        const url = data.results[0].picture.large; // Tag billedets URL
-        setAvatarUrl(url); // Opdater state
+        const url = data.results[0].picture.large;  
+        setAvatarUrl(url); // Opdater state med aventar-Url
       })
       .catch((err) => console.error("Fejl ved hentning af avatar:", err));
-  }, [user]);
+  }, [user]);   // kører når user ændres
 
-  const isLoading = loading || !user || !avatarUrl;
+  const isLoading = loading || !user || !avatarUrl;  //Hvis brugerdata eller avatar ikke er klar, vises skeletons som placeholder.
 
   if (isLoading) {
     return (
@@ -39,20 +39,22 @@ export default function UserProfile() {
     );
   }
 
+    // skeleton loader mens data hentes
+
   return (
     <div className="flex items-center gap-8 w-full p-3 rounded">
-      {/* Avatar */}
+      {/* Avatar - // viser avatar når den er hentet*/}
       <img src={avatarUrl} alt="Avatar" className="w-25 h-25 rounded" />
 
       {/* Brugerens info */}
       <div className="flex flex-col">
-        {/* Navn */}
+        {/* Viser navn */}
         <p className="font-heading text-base font-bold">{user.full_name}</p>
-        {/* Rolle med stort begyndelsesbogstav */}
+        {/* Viser rolle med stort begyndelsesbogstav */}
         <p className="text-sm opacity-90">
           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
         </p>
-        {/* Email */}
+        {/* Viser brugerens Email */}
         <p className="text-sm opacity-70 mb-6">{user.email}</p>
 
         {/* Log ud knap */}

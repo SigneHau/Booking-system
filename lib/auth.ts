@@ -17,9 +17,7 @@ export async function logoutAuth() {
 export async function getUser() {
   const { data: authData, error: authError } = await supabase.auth.getUser()
   if (authError || !authData?.user) return null
-
   const user = authData.user
-
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name, role")

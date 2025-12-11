@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import LoginForm from "@/app/components/LoginForm"  // ⬅️ VIGTIGT: vi bruger nu dit komponent
+import LoginForm from "@/app/components/LoginForm" 
 
 export default function HomePage() {
   return (
@@ -14,7 +14,7 @@ export default function HomePage() {
           alt="Login billede"
           width={400}
           height={300}
-          loading="eager"
+          loading="eager" // indlæs straks
         />
       </div>
 
@@ -34,7 +34,7 @@ export default function HomePage() {
 
         {/* Login form komponent */}
         <div className="mt-12">
-          <LoginForm /> {/*  Hele din Mantine login form */}
+          <LoginForm /> 
         </div>
 
       </div>

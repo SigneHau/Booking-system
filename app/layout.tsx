@@ -24,3 +24,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+// Wrapper hele appen i MantineProvider, så alle komponenter har adgang til Mantine-temaet.
+//Loader Google-fonten Open Sans og sætter den på hele HTML’en.
+
+//Wrapper children i ModalsProvider, så dine modals fungerer overalt i appen.

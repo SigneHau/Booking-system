@@ -20,7 +20,7 @@ export function useUser() {
 
   // useEffect kører, når komponenten mountes (rendres første gang)
   useEffect(() => {
-    // Henter brugerdata fra Supabase og sætter det i state
+    // Henter brugerdata fra Supabase ved at kalde getUser i auth og sætter det i state
     getUser()
       .then(setUser) // Sætter brugerdata i state
       .finally(() => setLoading(false)) // Sætter loading til false, når brugerdata er hentet

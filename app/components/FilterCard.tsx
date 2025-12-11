@@ -8,7 +8,6 @@ import TimeSelector from "./TimeSelector"
 import { useUser, type User } from "@/hooks/useUser"
 import { getFloors } from "@/lib/booking"
 
-// Type for filtre – defineret direkte i FilterCard
 type Filters = {
   floor: number | null
   date: Date | null
@@ -19,9 +18,10 @@ type Filters = {
 
 type FilterCardProps = {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
+  // React funktion fra parent, bruges til at sende filter-data opad
   loadingSpinner: boolean
 }
-
+//FilterCard får setFilters som prop fra Dashboard.
 export default function FilterCard({ setFilters, loadingSpinner }: FilterCardProps) {
   const { user, isStudent, isTeacher } = useUser()
   const [floors, setFloors] = useState<number[]>([])
@@ -30,7 +30,7 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 
-  // 1) Hent etager
+  // 1) Hent alle etager fra Supabase
   useEffect(() => {
     async function loadFloors() {
       const result = await getFloors()
@@ -47,39 +47,36 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
     }
   }, [isStudent])
 
-  // 3) TEACHER: default-værdi
+  // 3) TEACHER: default-værdi = første etage
   useEffect(() => {
     if (isTeacher && floors.length > 0 && floor === null) {
       setFloor(floors[0])
     }
   }, [isTeacher, floors.length, floor])
 
-  // 4) Send filtre til parent
+  // 4) SEND FILTRE TIL PARENT
   useEffect(() => {
     setFilters({ floor, date, from, to, role: user?.role as User["role"] })
+    // <-- Her bruger vi React-funktionen setFilters fra parent
+    // den sender de valgte filtre op, så parent (Dashboard) kan bruge dem
   }, [floor, date, from, to, user, setFilters])
 
   // 5) maxDate afhænger af rollen
   const maxDate: Date = isStudent
-    ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
+    ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 2 uger for student
+    : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 6 mdr for lærer
 
   return (
     <>
-      {/* ----------------------------------------------------------- */}
-      {/* EFTER UX _ TEST - Loader centreret på hele siden imens der hentes ledige mødelokaler */}
-      {/* ----------------------------------------------------------- */}
-{/* ----------------------------------------------------------- */}
-      {/* Loader centreret visuelt i forhold til indhold og sidemenu */}
-      {/* ----------------------------------------------------------- */}
+      {/* Loader vises over hele siden når der hentes lokaler */}
       {loadingSpinner && (
         <div className="fixed inset-0 bg-white/70">
           <div
             className="absolute"
             style={{
-              top: "35vh",        // lidt ned fra toppen
-              left: "50%",         // ca. midt i viewport
-              transform: "translateX(50%)", // flytter loaderen til højre
+              top: "35vh",
+              left: "50%",
+              transform: "translateX(50%)",
             }}
           >
             <Loader size="xl" />
@@ -87,47 +84,37 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
         </div>
       )}
 
-      {/* ----------------------------------------------------------- */}
       {/* Filter Paper */}
-      {/* ----------------------------------------------------------- */}
       <Paper shadow="sm" radius="lg" withBorder p="xl">
         <div className="font-semibold text-lg mb-4">Filter</div>
 
         <Grid gutter="xl">
           {/* Etage */}
           <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-            <Text size="sm" fw={500} mb={4}>
-              Etage
-            </Text>
+            <Text size="sm" fw={500} mb={4}>Etage</Text>
             <FloorSelector
               floors={floors}
               value={floor}
               onChange={setFloor}
-              disabled={isStudent}
+              disabled={isStudent} // studerende kan ikke ændre etage
             />
           </Grid.Col>
 
           {/* Dato */}
           <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-            <Text size="sm" fw={500} mb={4}>
-              Dato
-            </Text>
+            <Text size="sm" fw={500} mb={4}>Dato</Text>
             <DateSelector value={date} onChange={setDate} maxDate={maxDate} />
           </Grid.Col>
 
           {/* Tid fra */}
           <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-            <Text size="sm" fw={500} mb={4}>
-              Tidspunkt fra
-            </Text>
+            <Text size="sm" fw={500} mb={4}>Tidspunkt fra</Text>
             <TimeSelector value={from} onChange={setFrom} />
           </Grid.Col>
 
           {/* Tid til */}
           <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-            <Text size="sm" fw={500} mb={4}>
-              Tidspunkt til
-            </Text>
+            <Text size="sm" fw={500} mb={4}>Tidspunkt til</Text>
             <TimeSelector value={to} onChange={setTo} />
           </Grid.Col>
         </Grid>
@@ -135,3 +122,12 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
     </>
   )
 }
+
+// -------------------------------------------------------------
+// Kort opsummering:
+// - useUser: henter logget bruger + roller
+// - STUDENT: låser etage til 3, lærer kan vælge
+// - setFilters: React funktion fra parent, sender filterdata opad
+// - loadingSpinner: viser loader mens lokaler hentes
+// - maxDate: begrænser hvor langt frem i tiden man kan booke afhængigt af rolle
+// -------------------------------------------------------------

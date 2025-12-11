@@ -43,3 +43,9 @@ function AvailableRoomsCard({
 }
 
 export default AvailableRoomsCard
+
+
+// AvailableRoomsCard = UI-kort der viser ledige lokaler.
+// Props = data og funktioner fra parent (Dashboard).
+// Typerne (Filters + AvailableRoomsCardProps) sikrer, at du kun sender gyldige data.
+// Selve bookingen håndteres i TableRooms.

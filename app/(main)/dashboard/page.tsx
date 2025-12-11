@@ -19,31 +19,28 @@ export default function Dashboard() {
   // -------------------------------------------
   // STATE: bruger + filtre
   // -------------------------------------------
-  const { user, isStudent } = useUser()
+  const { user, isStudent } = useUser() 
+  // custom hook der henter den loggede bruger og om det er student/lærer
 
   // EFTER UX TEST - STATE: til loadingspinner
-
   const [loadingSpinner, setLoadingSpinner] = useState(false)
-
   const [filters, setFilters] = useState<Filters>({
     floor: null,
     date: null,
     from: null,
     to: null,
-    role: "Teacher",
+    role: "Teacher", // default værdi for filterkortet, ikke brugerens rolle
   })
 
   const [rooms, setRooms] = useState<any[]>([])
-
   // -------------------------------------------------------------
-  // så den bruges før useEffect
+  // Funktion: hent lokaler
   // -------------------------------------------------------------
   async function fetchRooms() {
     const { floor, date, from, to } = filters
     
     if (!floor || !date || !from || !to) return
-
-    setLoadingSpinner(true) // <-- START LOADING
+    setLoadingSpinner(true) // <-- START LOADING spinner mens data hentes
 
     const dateStr = date.toISOString().split("T")[0]
 
@@ -57,7 +54,6 @@ export default function Dashboard() {
       : base // Lærere: alle lokaler på etagen
 
     const { data: roomsData } = await query
-
     const safeRooms = roomsData ?? []
     const results: any[] = []
 
@@ -86,7 +82,7 @@ export default function Dashboard() {
 
       results.push({
         ...room,
-        booked: isBooked,
+        booked: isBooked, // markerer om lokalet er ledigt
         bookings: safeBookings,
         availability: room.availability,
       })
@@ -97,11 +93,11 @@ export default function Dashboard() {
   }
 
   // -------------------------------------------------------------
-  // 3️⃣ Når filtre ændres → hent lokaler
+  // useEffect: når filtre ændres, hent lokaler igen
   // -------------------------------------------------------------
   useEffect(() => {
     if (filters.floor && filters.date) {
-      fetchRooms()
+      fetchRooms() // automatisk hent når filtre ændres
     }
   }, [filters])
 
@@ -112,18 +108,28 @@ export default function Dashboard() {
     <div>
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Book et lokale</h1>
-        {/* ⚡️ vis brugerens rolle */}
-        <RoleBadge />
+        <RoleBadge /> {/* viser brugerens rolle */}
       </div>
 
       <FilterCard setFilters={setFilters} loadingSpinner={loadingSpinner} />
+      {/* filterkort med valgmuligheder + spinner */}
 
       <AvailableRoomsCard
         rooms={rooms}
-        userId={user?.id ?? null} // 👈 send userId til TableRooms
+        userId={user?.id ?? null} // send userId til TableRooms
         filters={filters}
-        fetchRooms={fetchRooms}
+        fetchRooms={fetchRooms} // mulighed for at opdatere lokaler igen
       />
     </div>
   )
 }
+
+// -------------------------------------------------------------
+// Kort opsummering til eksamen:
+// - useUser: finder logget bruger og om det er student/lærer
+// - filters.role: default værdi for UI, ikke faktisk brugerrolle
+// - fetchRooms: henter lokaler fra supabase, tjekker bookings, bruger isStudent til permissions
+// - loadingSpinner: viser spinner mens lokaler hentes
+// - useEffect: automatisk opdatering når filtre ændres
+// - UI: viser role badge, filterkort og tilgængelige lokaler
+// -------------------------------------------------------------
