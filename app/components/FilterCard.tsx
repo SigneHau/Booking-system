@@ -6,7 +6,7 @@ import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
 import { useUser, type User } from "@/hooks/useUser"
-import { getFloors } from "@/lib/booking"
+import { getFloors } from "@/lib/rooms"
 
 type Filters = {
   floor: number | null

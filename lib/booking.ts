@@ -1,18 +1,7 @@
 import { supabase } from "./supabaseClient"
 
 
-// Hent alle etager
-// -------------------------------------------------------------
-export async function getFloors() {
-  const { data, error } = await supabase
-    .from("meetingrooms")
-    .select("floor")
-    .order("floor", { ascending: true })
 
-  if (error || !data) return []
-
-  return [...new Set(data.map((f) => f.floor))]
-}
 
 //
 // -------------------------------------------------------------
