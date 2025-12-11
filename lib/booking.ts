@@ -1,7 +1,6 @@
 import { supabase } from "./supabaseClient"
 
-//
-// -------------------------------------------------------------
+
 // Hent alle etager
 // -------------------------------------------------------------
 export async function getFloors() {
@@ -46,6 +45,39 @@ export async function createBooking(params: {
 
   return data
 }
+
+
+// -------------------------------------------------------------
+// Funktion: Henter alle bookinger for en given bruger
+// + slår dem sammen med mødelokalernes info
+// -------------------------------------------------------------
+export async function getUserBookings(userId: string) {
+  // ⚡️ Hvis der ikke er noget userId, returnér tom liste
+  if (!userId) return []
+
+  // Hent bookinger for brugeren, nyeste først
+  const { data: bookingsData } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("created_by", userId)
+    .order("starting_at", { ascending: false })
+
+  // Hent info om mødelokaler
+  const { data: roomsData } = await supabase.from("meetingrooms").select("*")
+
+  // Slå bookinger og lokaler sammen
+  const result = bookingsData?.map((b) => {
+    const room = roomsData?.find((r) => r.roomid === b.roomid)
+    return {
+      ...b,
+      roomName: room ? `${room.roomid} – ${room.local}` : "Ukendt lokale",
+      roomSize: room ? `${room.roomsize} personer` : "-",
+    }
+  })
+
+  return result || []
+}
+
 
 //
 // -------------------------------------------------------------

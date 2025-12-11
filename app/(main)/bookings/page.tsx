@@ -2,62 +2,52 @@
 
 import { useState, useEffect } from "react"
 import { Paper } from "@mantine/core"
-import { supabase } from "@/lib/supabaseClient"
 import { useUser } from "@/hooks/useUser"
 import RoleBadge from "@/app/components/RoleBadge"
 import UserBookingsTable from "@/app/components/UserBookingsTable"
+import { getUserBookings } from "@/lib/booking"
 
 const BookingPage = () => {
-  const { user } = useUser()
-  const [bookings, setBookings] = useState<any[]>([])
+  const { user } = useUser() // ⚡️ Henter den aktuelle bruger
+  const [bookings, setBookings] = useState<any[]>([]) // ⚡️ State til alle brugerens bookinger
 
   // -------------------------------------------------------------
-  // 4️⃣ Funktion: Henter ALLE bookinger som brugeren har lavet
-  // + slår dem sammen med mødelokalernes info
+  // Funktion: Hent bookinger og sæt dem i state
   // -------------------------------------------------------------
   async function fetchBookings() {
     if (!user?.id) return // ⚡️ vent til user er hentet
-
-    const { data: bookingsData } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("created_by", user.id) // filtrér på bruger-id
-      .order("starting_at", { ascending: false }) // Efter UX-TEST - Nyeste booking først - derfor bruger vi starting_at
-
-    const { data: roomsData } = await supabase.from("meetingrooms").select("*")
-
-    const result = bookingsData?.map((b) => {
-      const room = roomsData?.find((r) => r.roomid === b.roomid)
-      return {
-        ...b,
-        roomName: room ? `${room.roomid} – ${room.local}` : "Ukendt lokale",
-        roomSize: room ? `${room.roomsize} personer` : "-",
-      }
-    })
-
-    setBookings(result || [])
+    const data = await getUserBookings(user.id) // Hent bookinger fra lib
+    setBookings(data) // Opdater state
   }
 
   // -------------------------------------------------------------
-  // 5️⃣ useEffect: Når user-data er hentet → hent alle bookinger
+  // useEffect: Når user-data er hentet → hent alle bookinger
   // -------------------------------------------------------------
   useEffect(() => {
-    fetchBookings()
-  }, [user]) // ⚡️ kør igen når user ændres
+  if (!user?.id) return
+
+  const fetch = async () => {
+    const data = await getUserBookings(user.id)
+    setBookings(data)
+  }
+
+  fetch()
+}, [user]) // ⚡️ kør igen når user ændres
 
   // -------------------------------------------------------------
-  // 6️⃣ UI: Overskrift + RoleBadge + indrammet tabel
+  // UI: Overskrift + RoleBadge + indrammet tabel
   // -------------------------------------------------------------
   return (
     <div>
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Mine Bookinger</h1>
-        <RoleBadge />
+        <RoleBadge /> {/* Viser brugerens rolle */}
       </div>
 
       <Paper shadow="sm" radius="lg" withBorder p="xl" className="mt-8">
         <div className="font-semibold text-lg mb-4">Bookinger</div>
 
+        {/* Tabel over brugerens bookinger */}
         <UserBookingsTable bookings={bookings} refresh={fetchBookings} />
       </Paper>
     </div>
