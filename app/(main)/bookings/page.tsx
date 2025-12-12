@@ -55,3 +55,11 @@ const BookingPage = () => {
 }
 
 export default BookingPage
+
+// -------------------------------------------------------------
+// Kort opsummering til eksamen (Loader i Dashboard):
+// - Loading state: useState styrer hvornår spinner vises
+// - Loader placering: flyttet lidt op og til højre for bedre UI
+// - useEffect: loader aktiveres når data hentes og slukkes igen
+// getUserBookings: henter aktuelle bookinger for brugeren fra lib/booking
+

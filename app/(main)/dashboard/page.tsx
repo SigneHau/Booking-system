@@ -40,7 +40,9 @@ export default function Dashboard() {
   // useEffect: hent lokaler når filtre ændres
   // -------------------------------------------------------------
   useEffect(() => {
-    // ⚡️ Lav lokal async-funktion for at undgå React-advarsel om setState i sync effect
+    // Vi laver en lille async funktion herinde, fordi useEffect ikke selv må være async.
+// Det gør, at vi stadig kan hente data (fetchRooms) uden at få React-advarsler.
+
     const fetch = async () => {
       if (filters.floor && filters.date) {
         await fetchRooms()

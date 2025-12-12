@@ -13,7 +13,7 @@ export default function UserProfile() {
     if (!user) return; // Hvis der ikke er nogen bruger, gør vi ingenting
 
     const seed = encodeURIComponent(user.id); // / bruger id som seed, så samme bruger får samme avatar
-
+//henter aventar billede til profil fra denne  api
     fetch(`https://randomuser.me/api/?seed=${seed}`)
       .then((res) => res.json())
       .then((data) => {

@@ -13,8 +13,6 @@ export async function getFloors() {
   return [...new Set(data.map((f) => f.floor))]
 }
 
-
-
 type Filters = {
   floor: number | null
   date: Date | null

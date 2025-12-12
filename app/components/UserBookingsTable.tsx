@@ -36,7 +36,7 @@ export default function UserBookingsTable({
   bookings: Booking[]
   refresh: () => void
 }) {
-  console.log("🚀 ~ UserBookingsTable ~ bookings:", bookings)
+  console.log(" UserBookingsTable ~ bookings:", bookings)
 
   //
   // -------------------------------------------------------------
@@ -46,7 +46,7 @@ export default function UserBookingsTable({
   const time = (t: string) => t.slice(11, 16)
 
   // -------------------------------------------------------------
-  // 2️⃣ Åbner modal
+  // Åbner modal
   // -------------------------------------------------------------
   //
   function openCancelModal(b: Booking) {
@@ -127,7 +127,7 @@ export default function UserBookingsTable({
 
   //
   // -------------------------------------------------------------
-  // 3️⃣ Generér tabel-rækker
+  // Generér tabel-rækker
   // -------------------------------------------------------------
   //
   const rows = bookings.map((b, index) => (
@@ -164,7 +164,7 @@ export default function UserBookingsTable({
 
   //
   // -------------------------------------------------------------
-  // 4️⃣ Render — komplet tabel med headers
+  // Render — komplet tabel med headers
   // -------------------------------------------------------------
   //
   return (

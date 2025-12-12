@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="da" className={openSans.className}>
       <body>
         
-         {/* // Wrap hele appen i Mantine + Modals systemet */}
+         {/* // Wrap hele appen i Mantine + Modals systemet fungere globalt  */}
     <MantineProvider>
       <ModalsProvider>{children}</ModalsProvider>
     </MantineProvider>

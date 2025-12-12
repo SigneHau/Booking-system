@@ -1,5 +1,5 @@
 import { Paper } from "@mantine/core"
-import TableRooms from "./TableRooms"
+import TableRooms from "./TableRoomsLogic"
 import type { User } from "@/hooks/useUser"
 
 // Filtrene valgt af brugeren (etage, dato, tidsrum, rolle)

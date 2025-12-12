@@ -44,7 +44,7 @@ type TableRoomsProps = {
   fetchRooms: () => Promise<void>
 }
 
-function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
+function TableRoomsLogic({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
   if (!userId) console.warn("Ingen userId – er brugeren logget ind?")
 
   // -------------------------------------------------------------
@@ -180,4 +180,4 @@ function TableRooms({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
   )
 }
 
-export default TableRooms
+export default TableRoomsLogic

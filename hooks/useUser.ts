@@ -13,7 +13,7 @@ export type User = {
 
 // Hook til at hente brugerdata fra Supabase og gemme i state
 // Et hook er en funktion, der kan bruges i React-komponenter
-// Et hook er en måde at dele logik mellem komponenter og undgå at skrive den samme logik flere steder
+// Et hook er en måde at dele logik mellem komponenter og undgå at skrive den samme logik flere steder - genbruges i alle komponenter
 export function useUser() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
