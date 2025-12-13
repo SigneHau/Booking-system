@@ -5,7 +5,9 @@ import FilterCard from "../../components/FilterCard"
 import AvailableRoomsCard from "../../components/AvailableRoomsCard"
 import RoleBadge from "@/app/components/RoleBadge"
 import { useUser} from "@/hooks/useUser"
-import { fetchAvailableRooms, type Filters } from "@/lib/rooms"
+import { fetchAvailableRooms } from "@/lib/rooms"
+import { Filters } from "@/lib/types"
+import type { AvailableRoom } from "@/lib/rooms"
 
 
 export default function Dashboard() {
@@ -22,7 +24,7 @@ export default function Dashboard() {
     to: null,
     role: "Teacher", // default værdi for UI, ikke brugerrolle
   })
-  const [rooms, setRooms] = useState<any[]>([])
+  const [rooms, setRooms] = useState<AvailableRoom[]>([])
 
   // -------------------------------------------------------------
   // Funktion: hent lokaler via lib/rooms

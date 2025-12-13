@@ -14,7 +14,7 @@ import { deleteBooking } from "@/lib/booking"
 // -------------------------------------------------------------
 // Én booking i tabellen
 // -------------------------------------------------------------
-type Booking = {
+export type Booking = {
   id: number
   roomName: string
   roomSize: string
@@ -22,7 +22,6 @@ type Booking = {
   starting_at: string
   ending_at: string
   roomid: string
-  floor: string
 }
 
 //
@@ -108,8 +107,9 @@ export default function UserBookingsTable({
                     await deleteBooking(b.id)
                     refresh()
                     modals.closeAll()
-                  } catch (err: any) {
-                    alert(err.message)
+                  } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : "Kunne ikke annullere booking."
+                    alert(message)
                   }
                 },
               },

@@ -1,5 +1,17 @@
 import { supabase } from "./supabaseClient"
-import type { User } from "@/hooks/useUser"
+import { Filters } from "./types"
+
+export type AvailableRoom = {
+  id: number
+  roomid: string
+  local: string
+  roomsize: number
+  floor: number
+  availability: string
+  booked: boolean
+  bookings: { id: number; starting_at: string; ending_at: string }[]
+}
+
 // Hent alle etager
 // -------------------------------------------------------------
 export async function getFloors() {
@@ -13,14 +25,6 @@ export async function getFloors() {
   return [...new Set(data.map((f) => f.floor))]
 }
 
-type Filters = {
-  floor: number | null
-  date: Date | null
-  from: string | null
-  to: string | null
-  role: User["role"]
-}
-
 export async function fetchAvailableRooms(filters: Filters, isStudent: boolean) {
   const { floor, date, from, to } = filters
   if (!floor || !date || !from || !to) return []
@@ -32,7 +36,7 @@ export async function fetchAvailableRooms(filters: Filters, isStudent: boolean) 
 
   const { data: roomsData } = await base
   const safeRooms = roomsData ?? []
-  const results: any[] = []
+  const results: AvailableRoom[] = []
 
   for (const room of safeRooms) {
     const { data: bookings } = await supabase

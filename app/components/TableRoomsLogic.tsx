@@ -5,9 +5,9 @@ import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
 import ModalButtons from "./ModalButtons"
-import { type User } from "@/hooks/useUser"
 import { createBooking } from "@/lib/booking"
 import { formatDateDK } from "@/lib/formatDate"
+import { Filters } from "@/lib/types"
 
 // -------------------------------------------------------------
 // Typedefs – struktur for data
@@ -27,14 +27,6 @@ type Room = {
   availability: string
   booked: boolean
   bookings: Booking[]
-}
-
-type Filters = {
-  floor: number | null
-  date: Date | null
-  from: string | null
-  to: string | null
-  role: User["role"]
 }
 
 type TableRoomsProps = {

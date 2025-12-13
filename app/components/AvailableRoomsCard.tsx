@@ -1,21 +1,13 @@
 import { Paper } from "@mantine/core"
 import TableRooms from "./TableRoomsLogic"
-import type { User } from "@/hooks/useUser"
-
-// Filtrene valgt af brugeren (etage, dato, tidsrum, rolle)
-type Filters = {
-  floor: number | null
-  date: Date | null
-  from: string | null
-  to: string | null
-  role: User["role"]
-}
+import { Filters } from "@/lib/types"
+import type { AvailableRoom } from "@/lib/rooms"
 
 // Props sendt fra StudentDashboard → AvailableRoomsCard
 type AvailableRoomsCardProps = {
-  rooms: any[]              // alle filtrerede lokaler (beregnet i dashboardet)
-  userId: string | null     // aktiv bruger-id (student eller teacher)
-  filters: Filters          // valgte filterværdier
+  rooms: AvailableRoom[] // alle filtrerede lokaler (beregnet i dashboardet)
+  userId: string | null  // aktiv bruger-id (student eller teacher)
+  filters: Filters       // valgte filterværdier
   fetchRooms: () => Promise<void> // opdaterer listen efter booking
 }
 

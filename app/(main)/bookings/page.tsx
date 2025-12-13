@@ -4,12 +4,12 @@ import { useState, useEffect } from "react"
 import { Paper } from "@mantine/core"
 import { useUser } from "@/hooks/useUser"
 import RoleBadge from "@/app/components/RoleBadge"
-import UserBookingsTable from "@/app/components/UserBookingsTable"
+import UserBookingsTable, { Booking } from "@/app/components/UserBookingsTable"
 import { getUserBookings } from "@/lib/booking"
 
 const BookingPage = () => {
   const { user } = useUser() // ⚡️ Henter den aktuelle bruger
-  const [bookings, setBookings] = useState<any[]>([]) // ⚡️ State til alle brugerens bookinger
+  const [bookings, setBookings] = useState<Booking[]>([]) // ⚡️ State til alle brugerens bookinger
 
   // -------------------------------------------------------------
   // Funktion: Hent bookinger og sæt dem i state

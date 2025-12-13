@@ -5,16 +5,9 @@ import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
 import TimeSelector from "./TimeSelector"
-import { useUser, type User } from "@/hooks/useUser"
+import { useUser } from "@/hooks/useUser"
 import { getFloors } from "@/lib/rooms"
-
-type Filters = {
-  floor: number | null
-  date: Date | null
-  from: string | null
-  to: string | null
-  role: User["role"]
-}
+import { Filters } from "@/lib/types"
 
 type FilterCardProps = {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
