@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@mantine/core";
 import PrimaryButton from "./PrimaryButton";
@@ -44,7 +45,14 @@ export default function UserProfile() {
   return (
     <div className="flex items-center gap-8 w-full p-3 rounded">
       {/* Avatar - // viser avatar når den er hentet*/}
-      <img src={avatarUrl} alt="Avatar" className="w-25 h-25 rounded" />
+      {/* next/image - optimerer billeder automatisk med responsive størrelser, lazy loading og moderne formater */}
+      <Image
+        src={avatarUrl}
+        alt="Avatar"
+        width={100}
+        height={100}
+        className="w-25 h-25 rounded"
+      />
 
       {/* Brugerens info */}
       <div className="flex flex-col">

@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   images: {
-    domains: ['avatars.dicebear.com'],
+    domains: ["avatars.dicebear.com", "randomuser.me"],
   },
 };
 
