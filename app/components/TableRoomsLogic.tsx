@@ -7,41 +7,22 @@ import BookingContentModal from "./BookingContentModal"
 import ModalButtons from "./ModalButtons"
 import { createBooking } from "@/lib/booking"
 import { formatDateDK, extractTime } from "@/lib/formatDate"
+import type { AvailableRoom } from "@/lib/rooms"
 import { Filters } from "@/lib/types"
-// -------------------------------------------------------------
-// Typedefs – struktur for data
-// -------------------------------------------------------------
-type Booking = {
-  id: number
-  starting_at: string
-  ending_at: string
-}
-
-type Room = {
-  id: number
-  roomid: string
-  local: string
-  roomsize: number
-  floor: number
-  availability: string
-  booked: boolean
-  bookings: Booking[]
-}
 
 type TableRoomsProps = {
-  rooms: Room[]
+  rooms: AvailableRoom[]
   userId: string | null
   filters: Filters
   fetchRooms: () => Promise<void>
 }
 
 function TableRoomsLogic({ rooms, userId, filters, fetchRooms }: TableRoomsProps) {
-  if (!userId) console.warn("Ingen userId – er brugeren logget ind?")
 
   // -------------------------------------------------------------
   // Åbner modal når brugeren klikker “Book”
   // -------------------------------------------------------------
-  const handleBooking = (room: Room) => {
+  const handleBooking = (room: AvailableRoom) => {
     modals.open({
       centered: true,
       size: "xs",
@@ -92,7 +73,7 @@ function TableRoomsLogic({ rooms, userId, filters, fetchRooms }: TableRoomsProps
   // -------------------------------------------------------------
   // Sender booking-data til Supabase
   // -------------------------------------------------------------
-  async function handleConfirmBooking(room: Room) {
+  async function handleConfirmBooking(room: AvailableRoom) {
     if (!userId) return
     const { date, from, to } = filters
     if (!date || !from || !to) return console.error("Manglende filterværdier (date/from/to)")
