@@ -6,9 +6,8 @@ import { IconAlertCircle } from "@tabler/icons-react"
 import BookingContentModal from "./BookingContentModal"
 import ModalButtons from "./ModalButtons"
 import { createBooking } from "@/lib/booking"
-import { formatDateDK } from "@/lib/formatDate"
+import { formatDateDK, extractTime } from "@/lib/formatDate"
 import { Filters } from "@/lib/types"
-
 // -------------------------------------------------------------
 // Typedefs – struktur for data
 // -------------------------------------------------------------
@@ -123,8 +122,8 @@ function TableRoomsLogic({ rooms, userId, filters, fetchRooms }: TableRoomsProps
       <Table.Td className="space-y-1">
         {room.bookings.length > 0 ? (
           room.bookings.map((b) => {
-            const start = b.starting_at.slice(11, 16)
-            const end = b.ending_at.slice(11, 16)
+            const start = extractTime(b.starting_at)
+            const end = extractTime(b.ending_at)
             return (
               <div
                 key={b.id}

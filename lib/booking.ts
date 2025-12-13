@@ -1,7 +1,5 @@
 import { supabase } from "./supabaseClient"
-
-
-
+import { formatDateISO, createDateTimeString } from "./formatDate"
 
 //
 // -------------------------------------------------------------
@@ -15,13 +13,13 @@ export async function createBooking(params: {
   userId: string
 }) {
   const { roomid, date, from, to, userId } = params
-  const dateStr = date.toISOString().split("T")[0]
+  const dateStr = formatDateISO(date)
 
   const { data, error } = await supabase.from("bookings").insert({
     roomid,
     date: dateStr,
-    starting_at: `${dateStr}T${from}`,
-    ending_at: `${dateStr}T${to}`,
+    starting_at: createDateTimeString(dateStr, from),
+    ending_at: createDateTimeString(dateStr, to),
     created_by: userId,
   })
 

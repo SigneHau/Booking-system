@@ -1,3 +1,4 @@
+import { extractTime } from "@/lib/formatDate"
 import { Text, Stack } from "@mantine/core"
 
 //
@@ -14,16 +15,6 @@ type BookingContentModalProps = {
   timeTo: string
 }
 
-//
-// -------------------------------------------------------------
-// Formatér klokkeslæt:
-// "09:30:00" → "09:30"
-// -------------------------------------------------------------
-//
-const formatTime = (timeStr: string) => {
-  if (!timeStr) return ""
-  return timeStr.slice(0, 5)
-}
 
 //
 // -------------------------------------------------------------
@@ -55,8 +46,8 @@ const BookingContentModal = ({
       </Text>
 
       <Text>
-        <strong>Tidspunkt:</strong> {formatTime(timeFrom)} –{" "}
-        {formatTime(timeTo)}
+        <strong>Tidspunkt:</strong> {extractTime(timeFrom)} –{" "}
+        {extractTime(timeTo)}
       </Text>
     </Stack>
   )

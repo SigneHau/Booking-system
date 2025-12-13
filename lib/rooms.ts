@@ -1,4 +1,5 @@
 import { supabase } from "./supabaseClient"
+import { formatDateISO, createDateTime } from "./formatDate"
 import { Filters } from "./types"
 
 export type AvailableRoom = {
@@ -29,7 +30,7 @@ export async function fetchAvailableRooms(filters: Filters, isStudent: boolean) 
   const { floor, date, from, to } = filters
   if (!floor || !date || !from || !to) return []
 
-  const dateStr = date.toISOString().split("T")[0]
+  const dateStr = formatDateISO(date)
 
   let base = supabase.from("meetingrooms").select("*").eq("floor", floor)
   if (isStudent) base = base.eq("local", "Mødelokale")
@@ -47,8 +48,8 @@ export async function fetchAvailableRooms(filters: Filters, isStudent: boolean) 
 
     const safeBookings = bookings ?? []
 
-    const userStart = new Date(`${dateStr}T${from}`)
-    const userEnd = new Date(`${dateStr}T${to}`)
+    const userStart = createDateTime(dateStr, from)
+    const userEnd = createDateTime(dateStr, to)
 
     const isBooked = safeBookings.some((b) => {
       const start = new Date(b.starting_at)

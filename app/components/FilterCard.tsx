@@ -8,6 +8,7 @@ import TimeSelector from "./TimeSelector"
 import { useUser } from "@/hooks/useUser"
 import { getFloors } from "@/lib/rooms"
 import { Filters } from "@/lib/types"
+import { addDays } from "@/lib/formatDate"
 
 type FilterCardProps = {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
@@ -56,8 +57,8 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
 
   // 5) maxDate afhænger af rollen
   const maxDate: Date = isStudent
-    ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 2 uger for student
-    : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 6 mdr for lærer
+    ? addDays(new Date(), 14) // 2 uger for student
+    : addDays(new Date(), 180) // 6 mdr for lærer
 
   return (
     <>

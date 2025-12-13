@@ -6,7 +6,7 @@ import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
 import ModalButtons from "./ModalButtons"
 import BookingContentModal from "./BookingContentModal"
-import { formatDateDK } from "@/lib/formatDate"
+import { formatDateDK, formatTimeDK, extractTime } from "@/lib/formatDate"
 import { deleteBooking } from "@/lib/booking"
 
 
@@ -35,15 +35,6 @@ export default function UserBookingsTable({
   bookings: Booking[]
   refresh: () => void
 }) {
-  console.log(" UserBookingsTable ~ bookings:", bookings)
-
-  //
-  // -------------------------------------------------------------
-  // Helper: formatér klokkeslæt "2025-11-20T08:00:00" → "08:00"
-  // -------------------------------------------------------------
-  //
-  const time = (t: string) => t.slice(11, 16)
-
   // -------------------------------------------------------------
   // Åbner modal
   // -------------------------------------------------------------
@@ -84,14 +75,8 @@ export default function UserBookingsTable({
             floor={b.roomid.slice(0, 1)}
             room={b.roomid}
             date={formatDateDK(new Date(b.date))}
-            timeFrom={new Date(b.starting_at).toLocaleTimeString("da-DK", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            timeTo={new Date(b.ending_at).toLocaleTimeString("da-DK", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            timeFrom={formatTimeDK(new Date(b.starting_at))}
+            timeTo={formatTimeDK(new Date(b.ending_at))}
           />
 
           {/* Reusable button component
@@ -132,10 +117,10 @@ export default function UserBookingsTable({
   //
   const rows = bookings.map((b, index) => (
     <Table.Tr
-     key={b.id}
-       // EFTER UX_TEST: Fremhæv den første række (den nyeste booking )
-       className={index === 0 ? "!bg-blue-50/70 border-l-4 border-blue-500" : ""}
-      >
+      key={b.id}
+      // EFTER UX_TEST: Fremhæv den første række (den nyeste booking )
+      className={index === 0 ? "!bg-blue-50/70 border-l-4 border-blue-500" : ""}
+    >
       {/* Lokale navn */}
       <Table.Td>{b.roomName}</Table.Td>
 
@@ -144,7 +129,7 @@ export default function UserBookingsTable({
 
       {/* Tidspunkt */}
       <Table.Td>
-        {time(b.starting_at)} – {time(b.ending_at)}
+        {extractTime(b.starting_at)} – {extractTime(b.ending_at)}
       </Table.Td>
 
       {/* Dato */}
