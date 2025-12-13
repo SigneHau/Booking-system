@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import FilterCard from "../../components/FilterCard"
 import AvailableRoomsCard from "../../components/AvailableRoomsCard"
 import RoleBadge from "@/app/components/RoleBadge"
@@ -29,20 +29,20 @@ export default function Dashboard() {
   // -------------------------------------------------------------
   // Funktion: hent lokaler via lib/rooms
   // -------------------------------------------------------------
-  async function fetchRooms() {
-    if (!filters.floor || !filters.date) return
+  const fetchRooms = useCallback(async () => {
+    if (!filters.floor || !filters.date || !filters.from || !filters.to) return
 
     setLoadingSpinner(true) // Start spinner
     const data = await fetchAvailableRooms(filters, isStudent)
     setRooms(data)          // Opdater state med lokaler
     setLoadingSpinner(false) // Stop spinner
-  }
+  }, [filters, isStudent])
 
   // -------------------------------------------------------------
   // useEffect: hent lokaler når filtre ændres
   // -------------------------------------------------------------
   useEffect(() => {
-    // Vi laver en lille async funktion herinde, fordi useEffect ikke selv må være async.
+       // Vi laver en lille async funktion herinde, fordi useEffect ikke selv må være async.
 // Det gør, at vi stadig kan hente data (fetchRooms) uden at få React-advarsler.
 
     const fetch = async () => {
@@ -52,7 +52,7 @@ export default function Dashboard() {
     }
 
     fetch()
-  }, [filters]) // Kør kun når filters ændres
+  },[filters, fetchRooms]) // Kør kun når filters ændres
 
   // -------------------------------------------------------------
   // UI Layout
