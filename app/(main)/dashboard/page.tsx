@@ -63,7 +63,7 @@ export default function Dashboard() {
         <RoleBadge /> {/* Viser brugerens rolle */}
       </div>
 
-      <FilterCard setFilters={setFilters} loadingSpinner={loadingSpinner} />
+      <FilterCard setFilters={setFilters}  />
       {/* Filterkort med valgmuligheder + spinner */}
 
       <AvailableRoomsCard
@@ -71,6 +71,7 @@ export default function Dashboard() {
         userId={user?.id ?? null} // Send userId til TableRooms
         filters={filters}
         fetchRooms={fetchRooms}   // Mulighed for manuel opdatering
+        loadingSpinner={loadingSpinner}
       />
     </div>
   )

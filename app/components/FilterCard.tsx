@@ -1,6 +1,6 @@
 "use client"
 
-import { Text, Paper, Grid, Loader } from "@mantine/core"
+import { Text, Paper, Grid } from "@mantine/core"
 import { useEffect, useState } from "react"
 import FloorSelector from "./FloorSelector"
 import DateSelector from "./DateSelector"
@@ -13,13 +13,11 @@ import { addDays } from "@/lib/formatDate"
 type FilterCardProps = {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
   // React funktion fra parent, bruges til at sende filter-data opad
-  loadingSpinner: boolean
 }
 
 // FilterCard får setFilters som prop fra Dashboard.
 export default function FilterCard({
   setFilters,
-  loadingSpinner,
 }: FilterCardProps) {
   const { isStudent } = useUser()
   const [floors, setFloors] = useState<number[]>([])
@@ -61,22 +59,6 @@ export default function FilterCard({
 
   return (
     <>
-      {/* Loader vises over hele siden når der hentes lokaler */}
-      {loadingSpinner && (
-        <div className="fixed inset-0 bg-white/70">
-          <div
-            className="absolute"
-            style={{
-              top: "35vh",
-              left: "50%",
-              transform: "translateX(50%)",
-            }}
-          >
-            <Loader size="xl" />
-          </div>
-        </div>
-      )}
-
       {/* Filter Paper */}
       <Paper shadow="sm" radius="lg" withBorder p="xl">
         <div className="font-semibold text-lg mb-4">Filter</div>

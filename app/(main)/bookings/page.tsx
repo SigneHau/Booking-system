@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Paper } from "@mantine/core"
+import { Paper, Loader, Center } from "@mantine/core"
 import { useUser } from "@/hooks/useUser"
 import RoleBadge from "@/app/components/RoleBadge"
 import UserBookingsTable, { Booking } from "@/app/components/UserBookingsTable"
@@ -10,14 +10,17 @@ import { getUserBookings } from "@/lib/booking"
 const BookingPage = () => {
   const { user } = useUser() // ⚡️ Henter den aktuelle bruger
   const [bookings, setBookings] = useState<Booking[]>([]) // ⚡️ State til alle brugerens bookinger
+  const [loading, setLoading] = useState(true)
 
   // -------------------------------------------------------------
   // Funktion: Hent bookinger og sæt dem i state
   // -------------------------------------------------------------
   async function fetchBookings() {
     if (!user?.id) return // ⚡️ vent til user er hentet
+    setLoading(true)
     const data = await getUserBookings(user.id) // Hent bookinger fra lib
     setBookings(data) // Opdater state
+    setLoading(false)
   }
 
   // -------------------------------------------------------------
@@ -27,8 +30,10 @@ const BookingPage = () => {
   if (!user?.id) return
 
   const fetch = async () => {
+    setLoading(true)
     const data = await getUserBookings(user.id)
     setBookings(data)
+    setLoading(false)
   }
 
   fetch()
@@ -47,8 +52,15 @@ const BookingPage = () => {
       <Paper shadow="sm" radius="lg" withBorder p="xl" className="mt-8">
         <div className="font-semibold text-lg mb-4">Bookinger</div>
 
-        {/* Tabel over brugerens bookinger */}
-        <UserBookingsTable bookings={bookings} refresh={fetchBookings} />
+        {/* Loader vises når der hentes bookinger */}
+        {loading ? (
+          <Center>
+            <Loader size="lg" />
+          </Center>
+        ) : (
+          // Tabel over brugerens bookinger
+          <UserBookingsTable bookings={bookings} refresh={fetchBookings} />
+        )}
       </Paper>
     </div>
   )
