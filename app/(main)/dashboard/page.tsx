@@ -22,7 +22,6 @@ export default function Dashboard() {
     date: null,
     from: null,
     to: null,
-    role: "Teacher", // default værdi for UI, ikke brugerrolle
   })
   const [rooms, setRooms] = useState<AvailableRoom[]>([])
 
@@ -80,7 +79,6 @@ export default function Dashboard() {
 // -------------------------------------------------------------
 // Kort opsummering til eksamen:
 // - useUser: finder logget bruger og om det er student/lærer
-// - filters.role: default værdi for UI, ikke faktisk brugerrolle
 // - fetchRooms: henter lokaler fra lib/rooms, tjekker bookings, bruger isStudent til permissions
 // - loadingSpinner: viser spinner mens lokaler hentes
 // - useEffect: automatisk opdatering når filtre ændres
