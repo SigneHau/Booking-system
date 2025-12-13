@@ -15,9 +15,13 @@ type FilterCardProps = {
   // React funktion fra parent, bruges til at sende filter-data opad
   loadingSpinner: boolean
 }
-//FilterCard får setFilters som prop fra Dashboard.
-export default function FilterCard({ setFilters, loadingSpinner }: FilterCardProps) {
-  const { user, isStudent, isTeacher } = useUser()
+
+// FilterCard får setFilters som prop fra Dashboard.
+export default function FilterCard({
+  setFilters,
+  loadingSpinner,
+}: FilterCardProps) {
+  const { isStudent } = useUser()
   const [floors, setFloors] = useState<number[]>([])
   const [floor, setFloor] = useState<number | null>(null)
   const [date, setDate] = useState<Date | null>(new Date())
@@ -33,29 +37,24 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
     loadFloors()
   }, [])
 
-  // 2) STUDENT: lås etage til 3
-  useEffect(() => {
-    if (isStudent) {
-      setFloors([3])
-      setFloor(3)
-    }
-  }, [isStudent])
+  // “Valgt etage” (helt simpel forretningsregel):
+  // - Student: altid 3
+  // - Ellers: brug valgt etage
+  // - Hvis ingen valgt og lærer: default til første
+  const STUDENT_FLOOR = 3
+  const availableFloors = isStudent ? [STUDENT_FLOOR] : floors
 
-  // 3) TEACHER: default-værdi = første etage
-  useEffect(() => {
-    if (isTeacher && floors.length > 0 && floor === null) {
-      setFloor(floors[0])
-    }
-  }, [isTeacher, floors.length, floor])
+  // Studerende får altid 3. sal, lærere får valgt første mulige etage som default
+  const selectedFloor = isStudent ? STUDENT_FLOOR : floor ?? floors[0] ?? null
 
-  // 4) SEND FILTRE TIL PARENT
+  // 2) SEND FILTRE TIL PARENT
   useEffect(() => {
-    setFilters({ floor, date, from, to, role: user?.role as User["role"] })
+    setFilters({ floor: selectedFloor, date, from, to })
     // <-- Her bruger vi React-funktionen setFilters fra parent
     // den sender de valgte filtre op, så parent (Dashboard) kan bruge dem
-  }, [floor, date, from, to, user, setFilters])
+  }, [selectedFloor, date, from, to, setFilters])
 
-  // 5) maxDate afhænger af rollen
+  // 3) maxDate afhænger af rollen
   const maxDate: Date = isStudent
     ? addDays(new Date(), 14) // 2 uger for student
     : addDays(new Date(), 180) // 6 mdr for lærer
@@ -87,8 +86,8 @@ export default function FilterCard({ setFilters, loadingSpinner }: FilterCardPro
           <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
             <Text size="sm" fw={500} mb={4}>Etage</Text>
             <FloorSelector
-              floors={floors}
-              value={floor}
+              floors={availableFloors}
+              value={selectedFloor}
               onChange={setFloor}
               disabled={isStudent} // studerende kan ikke ændre etage
             />
