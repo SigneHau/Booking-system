@@ -1,5 +1,6 @@
 import { supabase } from "./supabaseClient"
 import { formatDateISO, createDateTimeString } from "./formatDate"
+import dayjs from "dayjs"
 
 //
 // -------------------------------------------------------------
@@ -42,18 +43,19 @@ export async function getUserBookings(userId: string) {
   // ⚡️ Hvis der ikke er noget userId, returnér tom liste
   if (!userId) return []
 
-  // Hent bookinger for brugeren, nyeste først
+  // Hent alle bookinger for brugeren
   const { data: bookingsData } = await supabase
     .from("bookings")
     .select("*")
     .eq("created_by", userId)
-    .order("starting_at", { ascending: false })
 
   // Hent info om mødelokaler
   const { data: roomsData } = await supabase.from("meetingrooms").select("*")
 
+  if (!bookingsData || bookingsData.length === 0) return []
+
   // Slå bookinger og lokaler sammen
-  const result = bookingsData?.map((b) => {
+  const bookings = bookingsData.map((b) => {
     const room = roomsData?.find((r) => r.roomid === b.roomid)
     return {
       ...b,
@@ -62,7 +64,20 @@ export async function getUserBookings(userId: string) {
     }
   })
 
-  return result || []
+  // Sortér efter created_at (nyeste først) for at finde seneste booking
+  const sortedByCreated = [...bookings].sort((a, b) =>
+    dayjs(b.created_at).diff(dayjs(a.created_at))
+  )
+
+  const [newestBooking, ...rest] = sortedByCreated
+
+  // Sortér resten efter nærmeste dato (ascending)
+  const remainingBookings = rest.sort((a, b) =>
+    dayjs(a.starting_at).diff(dayjs(b.starting_at))
+  )
+
+  // Returner: senest oprettede først, derefter sorteret efter nærmeste dato
+  return [newestBooking, ...remainingBookings]
 }
 
 
