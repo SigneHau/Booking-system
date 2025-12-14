@@ -1,5 +1,3 @@
-"use client"
-
 import RoleBadge from "@/app/components/RoleBadge"
 
 export default function HelpPage() {
@@ -88,5 +86,5 @@ export default function HelpPage() {
         </li>
       </ol>
     </div>
-  );
+  )
 }
