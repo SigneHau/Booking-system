@@ -4,7 +4,16 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   images: {
-    domains: ["avatars.dicebear.com", "randomuser.me"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.dicebear.com",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
+      },
+    ],
   },
 };
 
