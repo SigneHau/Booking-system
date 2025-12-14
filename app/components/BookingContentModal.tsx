@@ -1,12 +1,10 @@
 import { extractTime } from "@/lib/formatDate"
 import { Text, Stack } from "@mantine/core"
 
-//
-// -------------------------------------------------------------
+
 // Props til modal-komponenten
 // (TableRooms sender disse værdier ind i modalet)
-// -------------------------------------------------------------
-//
+
 type BookingContentModalProps = {
   floor: string
   room: string
@@ -16,12 +14,8 @@ type BookingContentModalProps = {
 }
 
 
-//
-// -------------------------------------------------------------
 // Modal-komponenten der viser booking-information.
 // Bruges i TableRooms via modals.open(...)
-// -------------------------------------------------------------
-//
 const BookingContentModal = ({
   floor,
   room,

@@ -1,4 +1,4 @@
-// Centralized Filters type - import this instead of redeclaring
+//Filters-typer genbruges i stedet for at oprette en ny flere steder
 export type Filters = {
   floor: number | null
   date: Date | null

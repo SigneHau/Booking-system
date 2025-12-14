@@ -1,9 +1,9 @@
 import { Paper, Loader, Center } from "@mantine/core"
-import TableRooms from "./TableRoomsLogic"
 import { Filters } from "@/lib/types"
 import type { AvailableRoom } from "@/lib/rooms"
+import TableRoomsLogic from "./TableRoomsLogic"
 
-// Props sendt fra StudentDashboard → AvailableRoomsCard
+// Props sendt fra DashboardPage → AvailableRoomsCard
 type AvailableRoomsCardProps = {
   rooms: AvailableRoom[] // alle filtrerede lokaler (beregnet i dashboardet)
   userId: string | null  // aktiv bruger-id (student eller teacher)
@@ -32,7 +32,7 @@ function AvailableRoomsCard({
         </Center>
       ) : (
         // Tabellen hvor hvert lokale vises, inkl. booking-knap
-        <TableRooms
+        <TableRoomsLogic
           rooms={rooms}
           userId={userId}
           filters={filters}

@@ -2,10 +2,9 @@ import { supabase } from "./supabaseClient"
 import { formatDateISO, createDateTimeString } from "./formatDate"
 import dayjs from "dayjs"
 
-//
-// -------------------------------------------------------------
+
+
 // Opret booking
-// -------------------------------------------------------------
 export async function createBooking(params: {
   roomid: string
   date: Date
@@ -24,6 +23,8 @@ export async function createBooking(params: {
     created_by: userId,
   })
 
+
+  //Databasen passer selv på, at der ikke kan laves dobbeltbookinger, og koden oversætter databasefejlen til en brugervenlig besked.
   if (error) {
     if (error.message.includes("bookings_no_overlap")) {
       throw new Error("Dette tidspunkt er allerede booket. Vælg et andet tidsrum.")
@@ -35,10 +36,10 @@ export async function createBooking(params: {
 }
 
 
-// -------------------------------------------------------------
+
 // Funktion: Henter alle bookinger for en given bruger
 // + slår dem sammen med mødelokalernes info
-// -------------------------------------------------------------
+
 export async function getUserBookings(userId: string) {
   // ⚡️ Hvis der ikke er noget userId, returnér tom liste
   if (!userId) return []
@@ -81,10 +82,8 @@ export async function getUserBookings(userId: string) {
 }
 
 
-//
-// -------------------------------------------------------------
+
 // Slet booking
-// -------------------------------------------------------------
 export async function deleteBooking(id: number) {
   const { error } = await supabase.from("bookings").delete().eq("id", id)
 

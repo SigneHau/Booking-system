@@ -3,74 +3,50 @@ import { ActionIcon } from "@mantine/core"
 import { getTimeRange, TimePicker } from "@mantine/dates"
 import { IconClock } from "@tabler/icons-react"
 
-// -----------------------------------------------------------------------------
 // Props som TimeSelector modtager fra FilterCard
-// value: det nuværende tidspunkt brugeren har valgt
-// onChange: callback-funktion der opdaterer tidspunktet i FilterCard - sender nye værdier tilbage til FilterCard
-// -----------------------------------------------------------------------------
 type TimeSelectorProps = {
-  value: string | null
-  onChange: (value: string | null) => void
+  value: string | null // nuværende valgt tidspunkt
+  onChange: (value: string | null) => void // funktion til at opdatere valgt tidspunkt
 }
 
-// TimeSelector-komponenten
 function TimeSelector({ value, onChange }: TimeSelectorProps) {
-  // State der styrer om dropdownen (time-picker popover) er åben eller ej
-  const [dropdownOpened, setDropdownOpened] = useState(false)
+  const [dropdownOpened, setDropdownOpened] = useState(false) // styrer om dropdown er åben
 
-  // Dette er det lille ur-ikon i venstre side af inputfeltet
-  // Når man klikker på ikonet, åbnes time-picker
   const pickerControl = (
     <ActionIcon
       variant="subtle"
       color="gray"
-      onClick={() => setDropdownOpened(true)}
+      onClick={() => setDropdownOpened(true)} // klik åbner dropdown
     >
-      <IconClock size={18} stroke={1.5} />
+      <IconClock size={18} stroke={1.5} /> {/* ur-ikon */}
     </ActionIcon>
   )
 
-  // Byttede TimeInput ud med TimePicker for at kunne tage kontrol over "presets" så den kun kan vælge hver halve time
+  //når du har valgt tidspunkt
   return (
     <TimePicker
       withDropdown
       className="text-gray-400"
-      // TimeInput kan ikke modtage null → brug tom string
-      value={value || ""}
-      // Når brugeren vælger et tidspunkt
+      value={value || ""} // brug tom string hvis value er null
       onChange={(val) => {
-        // send værdien op til FilterCard
-        onChange(val)
+        onChange(val) // opdater parent-komponent
 
-        // Hvis brugeren har ryddet feltet → luk dropdown
         if (value === "") {
-          setDropdownOpened(false)
+          setDropdownOpened(false) // luk dropdown hvis der ingen tidsintervalgt er valgt
         }
       }}
       label="Vælg det ønskede tidspunkt"
-      leftSection={pickerControl}
+      leftSection={pickerControl} // viser ur-ikonet
 
-            // gør hele inputfeltet klikbart - tilføjet efter UX-testen
-      onFocus={() => setDropdownOpened(true)} 
-      // ----------------------------------
-      // -----------------------------------------------------------------------
-      // popoverProps styrer den dropdown, der åbner ved valg af tidspunkt
-      // opened: styrer om dropdownen er åben
-      // onChange: kaldes når dropdownen lukkes – vi synkroniserer state her
-      // -----------------------------------------------------------------------
+      onFocus={() => setDropdownOpened(true)} // klik i input åbner dropdown
       popoverProps={{
-        opened: dropdownOpened,
-        onChange: (_opened) => !_opened && setDropdownOpened(false),
+        opened: dropdownOpened, // styrer om dropdown er åben
+        onChange: (_opened) => !_opened && setDropdownOpened(false), // synkroniser state ved luk
       }}
-      // -----------------------------------------------------------------------
-      // presets genererer alle tidspunkter mellem 08:00 og 16:00 med 30 minutter
-      // interval: 00:30:00 = halv time
-      // Dette gør at brugeren kun kan vælge præcist disse tidsværdier
-      // -----------------------------------------------------------------------
       presets={getTimeRange({
-        startTime: "08:00:00",
-        endTime: "16:00:00",
-        interval: "00:30:00",
+        startTime: "08:00:00", // starttid
+        endTime: "16:00:00",   // sluttid
+        interval: "00:30:00",  // halve timer
       })}
     />
   )

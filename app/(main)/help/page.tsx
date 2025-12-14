@@ -5,7 +5,7 @@ export default function HelpPage() {
     <div className="p-6">
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
         <h1>Sådan booker du</h1>
-        {/* ⚡️ viser brugerens rolle */}
+        {/* viser brugerens rolle */}
         <RoleBadge />
       </div>
 

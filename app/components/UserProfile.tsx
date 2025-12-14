@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Skeleton } from "@mantine/core"
-import PrimaryButton from "./PrimaryButton"
 import { useUser } from "@/hooks/useUser"
+import LogOutButton from "./LogOutButton"
 
 export default function UserProfile() {
   const { user, loading } = useUser() // et custom hook, der henter den aktuelle bruger og en loading-state.
@@ -44,7 +44,6 @@ export default function UserProfile() {
   return (
     <div className="flex items-center gap-8 w-full p-3 rounded">
       {/* Avatar - // viser avatar når den er hentet*/}
-      {/* next/image - optimerer billeder automatisk med responsive størrelser, lazy loading og moderne formater */}
       <img src={avatarUrl} alt="Avatar" className="w-25 h-25 rounded" />
 
       {/* Brugerens info */}
@@ -59,7 +58,7 @@ export default function UserProfile() {
         <p className="text-sm opacity-70 mb-6">{user.email}</p>
 
         {/* Log ud knap */}
-        <PrimaryButton text="Log ud" action="logout" />
+        <LogOutButton text="Log ud"/>
       </div>
     </div>
   )

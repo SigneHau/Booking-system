@@ -20,12 +20,17 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false) // loading styrer login-processen + spinner i knappen
 
+  // Håndterer formularindsendelse - nulstiller fejl og sætter loading til true
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
+  
     // 1) LOGIN
+    // Forsøger at logge brugeren ind ved at kalde loginAuth med email og password.
+    // Hvis der opstår en fejl, eller hvis der ikke findes en bruger i svaret,
+    // sættes en fejlbesked, loading stoppes, og funktionen afsluttes.
     const { data, error: loginError } = await loginAuth(email, password)
     if (loginError || !data.user) {
       setError("Forkert email eller adgangskode")
@@ -44,7 +49,7 @@ export default function LoginForm() {
       setLoading(false)
       return
     }
-    // 3) SEND VIDERE
+    // 3) Hvis brugeren eksisterer - SEND VIDERE
     router.push("/dashboard")
     setLoading(false) //slukker loading-state, fordi login-processen er færdig.
   }

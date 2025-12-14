@@ -11,6 +11,7 @@ import { ModalsProvider } from "@mantine/modals";
 
 const openSans = Open_Sans({ subsets: ["latin"], display: "swap" });
 
+// RootLayout viser alt indhold inden i layoutet
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="da" className={openSans.className}>

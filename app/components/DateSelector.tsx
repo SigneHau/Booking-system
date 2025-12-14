@@ -4,6 +4,7 @@ import { DateInput } from "@mantine/dates"
 // - value: den dato brugeren har valgt
 // - onChange: funktion der opdaterer datoen i FilterCard
 // - maxDate: hvor langt frem brugeren må vælge dato
+//typescipt hjælper med at se hvilke typer propsense har
 type DateSelectorProps = {
   value: Date | null
   onChange: (value: Date | null) => void

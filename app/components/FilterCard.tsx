@@ -10,9 +10,11 @@ import { getFloors } from "@/lib/rooms"
 import { Filters } from "@/lib/types"
 import { addDays } from "@/lib/formatDate"
 
+
+// Funktion setFilters fra parent, bruges til at sende filter-data opad til dashboardPage
 type FilterCardProps = {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
-  // React funktion fra parent, bruges til at sende filter-data opad
+  
 }
 
 // FilterCard får setFilters som prop fra Dashboard.
@@ -26,7 +28,7 @@ export default function FilterCard({
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
 
-  // 1) Hent alle etager fra Supabase
+  // 1) Hent alle etager fra Supabase - bliver kaldt fra lib/rooms
   useEffect(() => {
     async function loadFloors() {
       const result = await getFloors()
@@ -35,7 +37,7 @@ export default function FilterCard({
     loadFloors()
   }, [])
 
-  // “Valgt etage” (helt simpel forretningsregel):
+  // “Valgt etage”:
   // - Student: altid 3
   // - Ellers: brug valgt etage
   // - Hvis ingen valgt og lærer: default til første
@@ -47,8 +49,7 @@ export default function FilterCard({
 
   // 2) SEND FILTRE TIL PARENT
   useEffect(() => {
-    setFilters({ floor: selectedFloor, date, from, to })
-    // <-- Her bruger vi React-funktionen setFilters fra parent
+    setFilters({ floor: selectedFloor, date, from, to }) // <-- Her bruger vi React-funktionen setFilters fra parent
     // den sender de valgte filtre op, så parent (Dashboard) kan bruge dem
   }, [selectedFloor, date, from, to, setFilters])
 
@@ -59,7 +60,7 @@ export default function FilterCard({
 
   return (
     <>
-      {/* Filter Paper */}
+      {/* Filter Paper - hele filtercard boksen */}
       <Paper shadow="sm" radius="lg" withBorder p="xl">
         <div className="font-semibold text-lg mb-4">Filter</div>
 

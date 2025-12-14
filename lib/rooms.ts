@@ -2,8 +2,11 @@ import { supabase } from "./supabaseClient"
 import { formatDateISO, createDateTime } from "./formatDate"
 import { Filters } from "./types"
 
+//Typer - typescript -  type-definitioner.
+// Booking-type beskriver en booking
 type Booking = { id: number; roomid: string; starting_at: string; ending_at: string }
 
+// Room-type beskriver et lokale med basale oplysninger
 type Room = {
   id: number
   roomid: string
@@ -13,6 +16,7 @@ type Room = {
   availability: string
 }
 
+// AvailableRoom udvider Room med info om bookinger og ledighed
 export type AvailableRoom = Room & {
   booked: boolean
   bookings: Booking[]
@@ -30,12 +34,13 @@ export async function getFloors() {
   return [...new Set(data.map((f) => f.floor))]
 }
 
+// Henter lokaler fra databasen ud fra valgt etage og brugerrolle
 async function fetchRooms(floor: number, isStudent: boolean) {
   let query = supabase.from("meetingrooms").select("*").eq("floor", floor)
-  if (isStudent) query = query.eq("local", "Mødelokale")
-  const { data, error } = await query
+  if (isStudent) query = query.eq("local", "Mødelokale") // Studerende må kun se mødelokaler
+  const { data, error } = await query  // udfører forespørgslen og får data eller fejl
   if (error) console.warn("fetchRooms failed:", error.message, error)
-  return data ?? []
+  return data ?? [] // returnerer tomt array hvis der ikke er data
 }
 
 async function fetchBookings(roomIds: string[], dateStr: string) {
@@ -74,22 +79,26 @@ function roomWithAvailability(room: Room, allBookings: Booking[], userStart: Dat
   }
 }
 
+// Henter alle tilgængelige lokaler baseret på filtre og brugerrolle
 export async function fetchAvailableRooms(filters: Filters, isStudent: boolean) {
   const { floor, date, from, to } = filters
-  if (!floor || !date || !from || !to) return []
+  if (!floor || !date || !from || !to) return [] // stop hvis filtre mangler
 
-  const dateStr = formatDateISO(date)
-  const userStart = createDateTime(dateStr, from)
-  const userEnd = createDateTime(dateStr, to)
+  const dateStr = formatDateISO(date)                  // formater dato til ISO
+  const userStart = createDateTime(dateStr, from)      // starttidspunkt
+  const userEnd = createDateTime(dateStr, to)          // sluttidspunkt
 
-  const rooms = await fetchRooms(floor, isStudent)
-  if (!rooms.length) return []
+  const rooms = await fetchRooms(floor, isStudent)    // hent lokaler for etage
+  if (!rooms.length) return []                        // stop hvis ingen lokaler
 
-  const roomsIds = rooms.map((r) => r.roomid)
-  const bookings = await fetchBookings(roomsIds, dateStr)
+  const roomsIds = rooms.map((r) => r.roomid)         // hent roomIds
+  const bookings = await fetchBookings(roomsIds, dateStr) // hent bookinger for disse rum
 
+  // Kombiner rum med deres bookings og beregn ledighed
   const availableRooms: AvailableRoom[] = rooms.map((room) =>
     roomWithAvailability(room, bookings, userStart, userEnd)
   )
-  return availableRooms
+
+  return availableRooms // returner array med lokaler inkl. bookings og "booked" status
 }
+

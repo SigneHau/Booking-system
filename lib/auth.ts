@@ -1,6 +1,6 @@
 import { supabase } from "./supabaseClient"
 
-// LOGIN med email og password
+// LOGIN med email og password fra supabase
 export async function loginAuth(email: string, password: string) {
   return await supabase.auth.signInWithPassword({
     email,
@@ -8,12 +8,12 @@ export async function loginAuth(email: string, password: string) {
   })
 }
 
-// LOGOUT – brugt af PrimaryButton
+// LOGOUT – brugt af PrimaryButton 
 export async function logoutAuth() {
   return await supabase.auth.signOut()
 }
 
-// HENT AKTIV BRUGER + PROFIL
+// HENT AKTIV BRUGER + PROFIL fra supabase
 export async function getUser() {
   const { data: authData, error: authError } = await supabase.auth.getUser()
   if (authError || !authData?.user) return null
