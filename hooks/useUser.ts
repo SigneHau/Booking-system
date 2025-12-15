@@ -29,5 +29,5 @@ export function useUser() {
   const isStudent = user?.role === "Student"
   const isTeacher = user?.role === "Teacher"
 
-  return { user, loading, isStudent, isTeacher } // Returnerer brugerdata, loading state og rolle-flags
+  return { user, loading, isStudent, isTeacher } // Returnerer brugerdata, brugerobject, en loading state og to booleans -for nem rolletjek. 
 }
