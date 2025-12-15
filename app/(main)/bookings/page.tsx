@@ -8,40 +8,36 @@ import UserBookingsTable, { Booking } from "@/app/components/UserBookingsTable"
 import { getUserBookings } from "@/lib/booking"
 
 const BookingPage = () => {
-  const { user } = useUser() // ⚡️ Henter den aktuelle bruger
-  const [bookings, setBookings] = useState<Booking[]>([]) // ⚡️ State til alle brugerens bookinger
-  const [loading, setLoading] = useState(true)
+  const { user } = useUser() // Henter den aktuelle bruger
+  const [bookings, setBookings] = useState<Booking[]>([]) // State til alle brugerens bookinger
+  const [loading, setLoading] = useState(true) // State til at vise loader/spinner
 
-  // -------------------------------------------------------------
-  // Funktion: Hent bookinger og sæt dem i state
-  // -------------------------------------------------------------
-  async function fetchBookings() {
-    if (!user?.id) return // ⚡️ vent til user er hentet
-    setLoading(true)
-    const data = await getUserBookings(user.id) // Hent bookinger fra lib
-    setBookings(data) // Opdater state
-    setLoading(false)
+  // Funktion: Hent bookinger og sæt dem i state. 
+  // loadBookings bruges som funktion til at genindlæse bookinger, fx når en booking slettes.
+  async function loadBookings() {
+    if (!user?.id) return // Vent til user er hentet
+    setLoading(true) // Start loader: spinner vises mens data hentes
+    const data = await getUserBookings(user.id) // Hent bookinger fra lib/booking
+    setBookings(data) // Opdater state med de hentede bookinger
+    setLoading(false) // Stop loader: spinner skjules når data er hentet
   }
 
-  // -------------------------------------------------------------
-  // useEffect: Når user-data er hentet → hent alle bookinger
-  // -------------------------------------------------------------
+  // useEffect: Når user-data er hentet → hent alle bookinger. 
+  // UseEffect- sikrer, at bookinger hentes automatisk, når siden åbnes, eller når user ændres.
   useEffect(() => {
-  if (!user?.id) return
+    if (!user?.id) return
 
-  const fetch = async () => {
-    setLoading(true)
-    const data = await getUserBookings(user.id)
-    setBookings(data)
-    setLoading(false)
-  }
+    const fetch = async () => {
+      setLoading(true) // Loaderspinner vises mens data hentes
+      const data = await getUserBookings(user.id) 
+      setBookings(data) // Opdater state med hentede bookinger
+      setLoading(false) // Loader skjules når data er klar
+    }
 
-  fetch()
-}, [user]) // ⚡️ kør igen når user ændres
+    fetch()
+  }, [user]) // Kør igen når user ændres
 
-  // -------------------------------------------------------------
   // UI: Overskrift + RoleBadge + indrammet tabel
-  // -------------------------------------------------------------
   return (
     <div>
       <div className="flex flex-col font-semibold mt-4 mb-6 text-3xl">
@@ -59,7 +55,7 @@ const BookingPage = () => {
           </Center>
         ) : (
           // Tabel over brugerens bookinger
-          <UserBookingsTable bookings={bookings} refresh={fetchBookings} />
+          <UserBookingsTable bookings={bookings} refresh={loadBookings} />
         )}
       </Paper>
     </div>
@@ -68,10 +64,7 @@ const BookingPage = () => {
 
 export default BookingPage
 
-// -------------------------------------------------------------
-// Kort opsummering til eksamen (Loader i Dashboard):
-// - Loading state: useState styrer hvornår spinner vises
-// - Loader placering: flyttet lidt op og til højre for bedre UI
+// Kort opsummering til eksamen:
+// - loading state: useState styrer, hvornår spinner vises
 // - useEffect: loader aktiveres når data hentes og slukkes igen
-// getUserBookings: henter aktuelle bookinger for brugeren fra lib/booking
-
+// - loadBookings: henter aktuelle bookinger for brugeren fra lib/booking og opdaterer state

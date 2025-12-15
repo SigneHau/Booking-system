@@ -1,6 +1,5 @@
 "use client"
 
-
 import { Table } from "@mantine/core"
 import { modals } from "@mantine/modals"
 import { IconAlertCircle } from "@tabler/icons-react"
@@ -9,11 +8,7 @@ import BookingContentModal from "./BookingContentModal"
 import { formatDateDK, formatTimeDK, extractTime } from "@/lib/formatDate"
 import { deleteBooking } from "@/lib/booking"
 
-
-//
-// -------------------------------------------------------------
-// Én booking i tabellen
-// -------------------------------------------------------------
+// Én booking i tabellen — opretter et booking-objekt
 export type Booking = {
   id: number
   roomName: string
@@ -24,27 +19,21 @@ export type Booking = {
   roomid: string
 }
 
-//
-// -------------------------------------------------------------
-// UserBookingsTable — viser ALLE brugerens bookinger
-// -------------------------------------------------------------
+// UserBookingsTable — viser alle brugerens bookinger
 export default function UserBookingsTable({
   bookings,
   refresh, // funktion der reloader bookinglisten i parent
 }: {
   bookings: Booking[]
-  refresh: () => void
+  refresh: () => void  //refresh er en funktion der retunere ingenting - bruges til at opdatere/loade bookinglisten igen efter fx en sletning.
 }) {
-  // -------------------------------------------------------------
-  // Åbner modal
-  // -------------------------------------------------------------
-  //
+  // Åbner modal når brugeren vil annullere en booking
   function openCancelModal(b: Booking) {
     modals.open({
       centered: true,
       size: "xs",
 
-      // Same custom styling as TableRooms
+      // Custom styling af modal
       styles: {
         content: {
           width: "280px",
@@ -56,7 +45,7 @@ export default function UserBookingsTable({
         },
       },
 
-      // Same title design with icon
+      // Modal titel med ikon
       title: (
         <div className="flex items-center gap-2">
           <IconAlertCircle size={20} className="text-gray-700" />
@@ -66,11 +55,12 @@ export default function UserBookingsTable({
 
       children: (
         <div className="space-y-4">
-          {/* Message */}
+          {/* Besked i modal */}
           <p className="">
             Er du sikker på, at du vil annullere denne booking?
           </p>
 
+          {/* Vis booking-detaljer */}
           <BookingContentModal
             floor={b.roomid.slice(0, 1)}
             room={b.roomid}
@@ -79,29 +69,28 @@ export default function UserBookingsTable({
             timeTo={formatTimeDK(new Date(b.ending_at))}
           />
 
-          {/* Reusable button component
-          Efter UX-test - er farverne på knapperne byttet om på knapperne  */}
+          {/* Knapper i modal */}
           <ModalButtons
             buttons={[
               {
                 label: "Ja",
                 color: "red",
                 action: async () => {
-                  // ✔️ HER bruger vi deleteBooking fra /lib/bookings
+                  // Slet booking via Supabase
                   try {
                     await deleteBooking(b.id)
-                    refresh()
-                    modals.closeAll()
+                    refresh() // genindlæs bookingliste
+                    modals.closeAll() // luk modal
                   } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : "Kunne ikke annullere booking."
-                    alert(message)
+                    alert(message) // vis fejl hvis sletning fejler
                   }
                 },
               },
               {
                 label: "Nej",
                 color: "blue",
-                action: () => modals.closeAll(),
+                action: () => modals.closeAll(), // luk modal uden ændring
               },
             ]}
           />
@@ -110,16 +99,11 @@ export default function UserBookingsTable({
     })
   }
 
-  //
-  // -------------------------------------------------------------
-  // Generér tabel-rækker
-  // -------------------------------------------------------------
-  //
+  // Generer tabelrækker for hver booking - mapper igennem array
   const rows = bookings.map((b, index) => (
     <Table.Tr
       key={b.id}
-      // EFTER UX_TEST: Fremhæv den første række (den nyeste booking )
-      className={index === 0 ? "!bg-blue-50/70 border-l-4 border-blue-500" : ""}
+      className={index === 0 ? "!bg-blue-50/70 border-l-4 border-blue-500" : ""} // fremhæv nyeste booking
     >
       {/* Lokale navn */}
       <Table.Td>{b.roomName}</Table.Td>
@@ -139,7 +123,7 @@ export default function UserBookingsTable({
       <Table.Td>
         <button
           className="bg-red-600 hover:bg-red-500 cursor-pointer transition-colors duration-200 px-4 py-2 rounded text-white"
-          onClick={() => openCancelModal(b)}
+          onClick={() => openCancelModal(b)} 
         >
           Annuller
         </button>
@@ -147,11 +131,7 @@ export default function UserBookingsTable({
     </Table.Tr>
   ))
 
-  //
-  // -------------------------------------------------------------
-  // Render — komplet tabel med headers
-  // -------------------------------------------------------------
-  //
+  // Render tabel med headers og rækker
   return (
     <Table>
       <Table.Thead>
@@ -170,25 +150,15 @@ export default function UserBookingsTable({
 }
 
 /*
-  Hvad gør komponentet “UserBookingsTable”?
+Hvad gør komponentet “UserBookingsTable”?
 
-  Komponenten viser alle bookinger for den aktuelle bruger i en tabel.
-  Den modtager en liste af booking-objekter samt en refresh()-funktion
-  fra parent-komponenten.
-
-  Funktionalitet:
-  - Viser lokale, kapacitet, dato og tidsrum for hver booking.
-  - Indeholder en "Annuller" knap på hver række.
-  - Når brugeren klikker "Annuller", åbnes en bekræftelsesmodal
-    (via Mantine modals).
-  - Modalet viser booking-detaljer og giver valget “Ja” eller “Nej”.
-  - Trykker brugeren “Ja”, kaldes deleteBooking(id), som sletter
-    bookingen i Supabase og derefter kalder refresh() for at
-    hente de opdaterede bookinger.
-  - Trykker brugeren “Nej”, lukkes modalet uden at ændre noget.
-
-  Kort sagt:
-  UserBookingsTable håndterer hele UI’et for at vise og slette
-  brugerens bookinger, inkl. modal-dialog, supabase delete og
-  genindlæsning af data.
+- Viser alle bookinger for den aktuelle bruger i en tabel.
+- Modtager en liste af booking-objekter og en refresh()-funktion fra parent.
+- Viser lokale, kapacitet, dato og tidsrum for hver booking.
+- Indeholder "Annuller" knap på hver række.
+- Når brugeren klikker "Annuller", åbnes en modal med bekræftelse.
+- Modalet viser booking-detaljer og giver valget “Ja” eller “Nej”.
+- Trykker brugeren “Ja”, slettes bookingen via deleteBooking(id) og refresh() kaldes.
+- Trykker brugeren “Nej”, lukkes modalet uden ændring.
+- Håndterer hele UI’et for visning og sletning af brugerens bookinger.
 */

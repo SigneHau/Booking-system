@@ -76,11 +76,11 @@ const [rooms, setRooms] = useState<AvailableRoom[]>([])       // Gemmer lokaler 
   )
 }
 
-// -------------------------------------------------------------
+
 // Kort opsummering til eksamen:
 // - useUser: finder logget bruger og om det er student/lærer
 // - fetchRooms: henter lokaler fra lib/rooms, tjekker bookings, bruger isStudent til permissions
 // - loadingSpinner: viser spinner mens lokaler hentes
 // - useEffect: automatisk opdatering når filtre ændres
 // - UI: viser role badge, filterkort og tilgængelige lokaler
-// -------------------------------------------------------------
+

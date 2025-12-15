@@ -15,7 +15,7 @@ type BookingContentModalProps = {
 
 
 // Modal-komponenten der viser booking-information.
-// Bruges i TableRooms via modals.open(...)
+// Bruges i TableRooms via modals.open(...) og i UserBookingstable
 const BookingContentModal = ({
   floor,
   room,
